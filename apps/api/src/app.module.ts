@@ -1,29 +1,28 @@
+import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
-import { BullModule } from '@nestjs/bullmq';
 
-import { configurarEnv } from './config/env';
 import { PrismaModule } from './comum/prisma/prisma.module';
 import { SaudeController } from './comum/saude/saude.controlador';
-
-import { AuthModule } from './modulos/auth/auth.modulo';
-import { EscritoriosModule } from './modulos/escritorios/escritorios.modulo';
-import { UsuariosModule } from './modulos/usuarios/usuarios.modulo';
-import { RbacModule } from './modulos/rbac/rbac.modulo';
-import { EmpresasModule } from './modulos/empresas/empresas.modulo';
-import { DocumentosModule } from './modulos/documentos/documentos.modulo';
+import { configurarEnv } from './config/env';
 import { AssinaturasModule } from './modulos/assinaturas/assinaturas.modulo';
-import { ObrigacoesModule } from './modulos/obrigacoes/obrigacoes.modulo';
-import { TarefasModule } from './modulos/tarefas/tarefas.modulo';
 import { AtendimentoModule } from './modulos/atendimento/atendimento.modulo';
-import { NotificacoesModule } from './modulos/notificacoes/notificacoes.modulo';
-import { AutomacoesModule } from './modulos/automacoes/automacoes.modulo';
-import { RelatoriosModule } from './modulos/relatorios/relatorios.modulo';
-import { IntegracoesModule } from './modulos/integracoes/integracoes.modulo';
 import { AuditoriaModule } from './modulos/auditoria/auditoria.modulo';
+import { AuthModule } from './modulos/auth/auth.modulo';
+import { AutomacoesModule } from './modulos/automacoes/automacoes.modulo';
+import { DocumentosModule } from './modulos/documentos/documentos.modulo';
+import { EmpresasModule } from './modulos/empresas/empresas.modulo';
+import { EscritoriosModule } from './modulos/escritorios/escritorios.modulo';
+import { IntegracoesModule } from './modulos/integracoes/integracoes.modulo';
+import { NotificacoesModule } from './modulos/notificacoes/notificacoes.modulo';
+import { ObrigacoesModule } from './modulos/obrigacoes/obrigacoes.modulo';
+import { RbacModule } from './modulos/rbac/rbac.modulo';
+import { UsuariosModule } from './modulos/usuarios/usuarios.modulo';
+import { TarefasModule } from './modulos/tarefas/tarefas.modulo';
+import { RelatoriosModule } from './modulos/relatorios/relatorios.modulo';
 import { FaturamentoModule } from './modulos/faturamento/faturamento.modulo';
 
 @Module({

@@ -1,11 +1,12 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { GuardaJwt } from '../../comum/guardas/jwt.guarda';
 import {
   UsuarioAtual,
   type UsuarioAutenticado,
 } from '../../comum/decoradores/usuario-atual.decorador';
+import { GuardaJwt } from '../../comum/guardas/jwt.guarda';
+
 import { EscritoriosServico } from './escritorios.servico';
 
 @ApiTags('escritorios')

@@ -1,10 +1,10 @@
+import { criarSolicitacaoAssinaturaSchema } from '@contabilpro/contracts';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { z } from 'zod';
 
-import { criarSolicitacaoAssinaturaSchema } from '@contabilpro/contracts';
 
-import { configurarEnv } from '../../config/env';
 import { PrismaService } from '../../comum/prisma/prisma.service';
+import { configurarEnv } from '../../config/env';
 
 type CriarSolicitacao = z.infer<typeof criarSolicitacaoAssinaturaSchema>;
 

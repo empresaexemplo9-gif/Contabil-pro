@@ -5,4 +5,4 @@ export function cn(...entradas: ClassValue[]): string {
   return twMerge(clsx(entradas));
 }
 
-export { Botao } from './botao.js';
+export { Botao } from './botao';

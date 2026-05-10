@@ -1,9 +1,10 @@
+import { loginEntradaSchema, refreshEntradaSchema } from '@contabilpro/contracts';
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
-import { loginEntradaSchema, refreshEntradaSchema } from '@contabilpro/contracts';
 
 import { Publico } from '../../comum/decoradores/publico.decorador';
+
 import { AuthServico } from './auth.servico';
 
 @ApiTags('auth')

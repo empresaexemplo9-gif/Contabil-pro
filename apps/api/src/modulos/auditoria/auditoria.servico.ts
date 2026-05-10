@@ -1,5 +1,5 @@
+import { Prisma } from '@contabilpro/database';
 import { Injectable } from '@nestjs/common';
-import type { Prisma } from '@contabilpro/database';
 
 import { PrismaService } from '../../comum/prisma/prisma.service';
 
@@ -26,7 +26,7 @@ export class AuditoriaServico {
         acao: dados.acao,
         entidade: dados.entidade,
         entidadeId: dados.entidadeId ?? null,
-        diff: (dados.diff ?? null) as Prisma.InputJsonValue | null,
+        diff: dados.diff ? (dados.diff as Prisma.InputJsonValue) : Prisma.JsonNull,
         ip: dados.ip ?? null,
         userAgent: dados.userAgent ?? null,
       },

@@ -1,4 +1,5 @@
 import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+
 import type { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({ namespace: '/atendimento', cors: { origin: '*' } })

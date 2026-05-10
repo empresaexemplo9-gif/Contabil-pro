@@ -1,13 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { z } from 'zod';
+
+import { PrismaService } from '../../comum/prisma/prisma.service';
 
 import type {
   atualizarTarefaSchema,
   criarTarefaSchema,
   Paginacao,
 } from '@contabilpro/contracts';
+import type { z } from 'zod';
 
-import { PrismaService } from '../../comum/prisma/prisma.service';
+
 
 type CriarTarefa = z.infer<typeof criarTarefaSchema>;
 type AtualizarTarefa = z.infer<typeof atualizarTarefaSchema>;

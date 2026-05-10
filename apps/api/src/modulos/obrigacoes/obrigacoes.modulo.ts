@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+
 import { ObrigacoesControlador } from './obrigacoes.controlador';
 import { ObrigacoesServico } from './obrigacoes.servico';
 

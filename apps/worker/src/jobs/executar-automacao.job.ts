@@ -1,6 +1,8 @@
-import type { Job } from 'bullmq';
-import { logger } from '@contabilpro/logger';
 import { prisma } from '@contabilpro/database';
+import { logger } from '@contabilpro/logger';
+
+import type { Prisma } from '@contabilpro/database';
+import type { Job } from 'bullmq';
 
 interface PayloadExecutarAutomacao {
   automacaoId: string;
@@ -14,7 +16,7 @@ export async function executarAutomacao(job: Job<PayloadExecutarAutomacao>): Pro
   const execucao = await prisma.execucaoAutomacao.create({
     data: {
       automacaoId: automacao.id,
-      contexto: job.data.contexto,
+      contexto: job.data.contexto as Prisma.InputJsonValue,
     },
   });
 

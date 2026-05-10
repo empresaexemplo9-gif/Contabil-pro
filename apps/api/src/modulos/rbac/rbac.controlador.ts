@@ -2,6 +2,7 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { GuardaJwt } from '../../comum/guardas/jwt.guarda';
+
 import { RbacServico } from './rbac.servico';
 
 @ApiTags('rbac')

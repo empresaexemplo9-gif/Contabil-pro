@@ -1,11 +1,13 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { createHash, randomBytes } from 'node:crypto';
 
 import { emitirTokenAcesso, validarCodigoMfa, verificarSenha } from '@contabilpro/auth-core';
-import type { LoginEntrada, LoginSaida, RefreshEntrada } from '@contabilpro/contracts';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 
-import { configurarEnv } from '../../config/env';
+
 import { PrismaService } from '../../comum/prisma/prisma.service';
+import { configurarEnv } from '../../config/env';
+
+import type { LoginEntrada, LoginSaida, RefreshEntrada } from '@contabilpro/contracts';
 
 @Injectable()
 export class AuthServico {

@@ -1,13 +1,14 @@
+import { atualizarTarefaSchema, criarTarefaSchema, paginacaoSchema } from '@contabilpro/contracts';
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { atualizarTarefaSchema, criarTarefaSchema, paginacaoSchema } from '@contabilpro/contracts';
 
-import { GuardaJwt } from '../../comum/guardas/jwt.guarda';
 import {
   UsuarioAtual,
   type UsuarioAutenticado,
 } from '../../comum/decoradores/usuario-atual.decorador';
+import { GuardaJwt } from '../../comum/guardas/jwt.guarda';
+
 import { TarefasServico } from './tarefas.servico';
 
 @ApiTags('tarefas')

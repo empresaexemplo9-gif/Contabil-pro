@@ -1,13 +1,14 @@
+import { criarSolicitacaoAssinaturaSchema } from '@contabilpro/contracts';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { criarSolicitacaoAssinaturaSchema } from '@contabilpro/contracts';
 
-import { GuardaJwt } from '../../comum/guardas/jwt.guarda';
 import {
   UsuarioAtual,
   type UsuarioAutenticado,
 } from '../../comum/decoradores/usuario-atual.decorador';
+import { GuardaJwt } from '../../comum/guardas/jwt.guarda';
+
 import { AssinaturasServico } from './assinaturas.servico';
 
 @ApiTags('assinaturas')

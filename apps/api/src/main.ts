@@ -1,14 +1,14 @@
 import 'reflect-metadata';
 
-import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { Logger } from 'nestjs-pino';
 import helmet from 'helmet';
+import { Logger } from 'nestjs-pino';
 
 import { AppModule } from './app.module';
-import { configurarEnv } from './config/env';
 import { FiltroExcecoesGlobais } from './comum/filtros/excecoes-globais.filtro';
+import { configurarEnv } from './config/env';
 
 async function iniciar() {
   const env = configurarEnv();

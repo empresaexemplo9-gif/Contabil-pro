@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+
 import { AtendimentoControlador } from './atendimento.controlador';
-import { AtendimentoServico } from './atendimento.servico';
 import { AtendimentoGateway } from './atendimento.gateway';
+import { AtendimentoServico } from './atendimento.servico';
 
 @Module({
   controllers: [AtendimentoControlador],

@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
+import { Module } from '@nestjs/common';
 
 import { NotificacoesControlador } from './notificacoes.controlador';
 import { NotificacoesServico } from './notificacoes.servico';

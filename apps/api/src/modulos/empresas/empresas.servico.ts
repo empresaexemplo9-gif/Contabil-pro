@@ -1,9 +1,10 @@
+import { apenasDigitos } from '@contabilpro/utils';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
-import type { CriarEmpresaEntrada, Paginacao } from '@contabilpro/contracts';
-import { apenasDigitos } from '@contabilpro/utils';
-
 import { PrismaService } from '../../comum/prisma/prisma.service';
+
+import type { CriarEmpresaEntrada, Paginacao } from '@contabilpro/contracts';
+
 
 @Injectable()
 export class EmpresasServico {

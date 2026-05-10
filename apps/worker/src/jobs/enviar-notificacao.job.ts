@@ -1,7 +1,8 @@
-import type { Job } from 'bullmq';
-import { logger } from '@contabilpro/logger';
 import { prisma } from '@contabilpro/database';
-import type { CanalNotificacao, TipoNotificacao } from '@contabilpro/database';
+import { logger } from '@contabilpro/logger';
+
+import type { CanalNotificacao, Prisma, TipoNotificacao } from '@contabilpro/database';
+import type { Job } from 'bullmq';
 
 interface PayloadNotificacao {
   escritorioId: string;
@@ -23,7 +24,7 @@ export async function processarNotificacao(job: Job<PayloadNotificacao>): Promis
       canal: dados.canal,
       titulo: dados.titulo,
       corpo: dados.corpo,
-      payload: dados.dados ?? {},
+      payload: (dados.dados ?? {}) as Prisma.InputJsonValue,
       enviadaEm: new Date(),
     },
   });

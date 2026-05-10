@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { randomBytes } from 'node:crypto';
+
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { randomBytes } from 'node:crypto';
+import { Injectable } from '@nestjs/common';
+
 
 import { configurarEnv } from '../../config/env';
 

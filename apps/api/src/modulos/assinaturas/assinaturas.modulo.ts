@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+
 import { AssinaturasControlador } from './assinaturas.controlador';
 import { AssinaturasServico } from './assinaturas.servico';
 

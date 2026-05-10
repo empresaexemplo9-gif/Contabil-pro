@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+
+import { ArmazenamentoServico } from './armazenamento.servico';
 import { DocumentosControlador } from './documentos.controlador';
 import { DocumentosServico } from './documentos.servico';
-import { ArmazenamentoServico } from './armazenamento.servico';
 
 @Module({
   controllers: [DocumentosControlador],

@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
-import type { Queue } from 'bullmq';
+import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../comum/prisma/prisma.service';
+
+import type { Queue } from 'bullmq';
+
 
 @Injectable()
 export class NotificacoesServico {

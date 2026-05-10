@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import type { Prisma } from '@contabilpro/database';
 
 import { PrismaService } from '../../comum/prisma/prisma.service';
+
+import type { Prisma } from '@contabilpro/database';
+
 
 @Injectable()
 export class AutomacoesServico {

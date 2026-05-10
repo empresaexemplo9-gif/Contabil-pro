@@ -1,10 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
-import type { CriarDocumentoEntrada, Paginacao } from '@contabilpro/contracts';
 
 import { PrismaService } from '../../comum/prisma/prisma.service';
-import type { UsuarioAutenticado } from '../../comum/decoradores/usuario-atual.decorador';
+
 import { ArmazenamentoServico } from './armazenamento.servico';
+
+import type { UsuarioAutenticado } from '../../comum/decoradores/usuario-atual.decorador';
+import type { CriarDocumentoEntrada, Paginacao } from '@contabilpro/contracts';
 
 @Injectable()
 export class DocumentosServico {

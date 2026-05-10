@@ -1,5 +1,6 @@
-import type { Job } from 'bullmq';
 import { logger } from '@contabilpro/logger';
+
+import type { Job } from 'bullmq';
 
 interface PayloadProcessarDocumento {
   documentoId: string;

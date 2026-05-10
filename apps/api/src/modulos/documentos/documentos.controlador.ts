@@ -1,15 +1,16 @@
+import { criarDocumentoSchema, paginacaoSchema, presignarUploadSchema } from '@contabilpro/contracts';
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { criarDocumentoSchema, paginacaoSchema, presignarUploadSchema } from '@contabilpro/contracts';
 
-import { GuardaJwt } from '../../comum/guardas/jwt.guarda';
 import {
   UsuarioAtual,
   type UsuarioAutenticado,
 } from '../../comum/decoradores/usuario-atual.decorador';
-import { DocumentosServico } from './documentos.servico';
+import { GuardaJwt } from '../../comum/guardas/jwt.guarda';
+
 import { ArmazenamentoServico } from './armazenamento.servico';
+import { DocumentosServico } from './documentos.servico';
 
 @ApiTags('documentos')
 @ApiBearerAuth()

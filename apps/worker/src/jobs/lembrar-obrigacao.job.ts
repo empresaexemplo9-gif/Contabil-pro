@@ -1,6 +1,7 @@
-import type { Job } from 'bullmq';
-import { logger } from '@contabilpro/logger';
 import { prisma } from '@contabilpro/database';
+import { logger } from '@contabilpro/logger';
+
+import type { Job } from 'bullmq';
 
 export async function lembrarObrigacao(job: Job): Promise<void> {
   const limite = new Date();

@@ -1,18 +1,18 @@
-import { Worker, type WorkerOptions } from 'bullmq';
-import IORedis from 'ioredis';
-
 import { logger } from '@contabilpro/logger';
+import { Worker, type WorkerOptions } from 'bullmq';
+import { Redis } from 'ioredis';
 
+
+import { iniciarAgendadores } from './agendadores/index.js';
 import { env, NOMES_FILAS } from './config.js';
 import { processarEmail } from './jobs/enviar-email.job.js';
+import { processarNotificacao } from './jobs/enviar-notificacao.job.js';
 import { processarWhatsapp } from './jobs/enviar-whatsapp.job.js';
-import { processarDocumento } from './jobs/processar-documento.job.js';
 import { executarAutomacao } from './jobs/executar-automacao.job.js';
 import { lembrarObrigacao } from './jobs/lembrar-obrigacao.job.js';
-import { processarNotificacao } from './jobs/enviar-notificacao.job.js';
-import { iniciarAgendadores } from './agendadores/index.js';
+import { processarDocumento } from './jobs/processar-documento.job.js';
 
-const conexao = new IORedis(env.REDIS_URL, { maxRetriesPerRequest: null });
+const conexao = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null });
 
 const opcoesBase: WorkerOptions = {
   connection: conexao,

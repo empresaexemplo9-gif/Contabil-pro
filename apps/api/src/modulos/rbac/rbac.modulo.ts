@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+
 import { RbacControlador } from './rbac.controlador';
 import { RbacServico } from './rbac.servico';
 

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+
 import { FaturamentoControlador } from './faturamento.controlador';
 import { FaturamentoServico } from './faturamento.servico';
 

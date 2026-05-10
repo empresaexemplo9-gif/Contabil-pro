@@ -1,7 +1,7 @@
+import { verificarTokenAcesso } from '@contabilpro/auth-core';
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
-import { verificarTokenAcesso } from '@contabilpro/auth-core';
 
 import { configurarEnv } from '../../config/env';
 import { CHAVE_PUBLICO } from '../decoradores/publico.decorador';

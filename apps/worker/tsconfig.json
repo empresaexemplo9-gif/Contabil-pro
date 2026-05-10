@@ -6,6 +6,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "noEmit": false,
+    "declaration": false,
+    "declarationMap": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },

@@ -1,3 +1,4 @@
+import { ErroAplicacao } from '@contabilpro/utils';
 import {
   ArgumentsHost,
   Catch,
@@ -6,10 +7,10 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import type { Response } from 'express';
 import { ZodError } from 'zod';
 
-import { ErroAplicacao } from '@contabilpro/utils';
+import type { Response } from 'express';
+
 
 @Catch()
 export class FiltroExcecoesGlobais implements ExceptionFilter {

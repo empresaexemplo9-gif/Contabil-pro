@@ -47,5 +47,5 @@ export async function verificarTokenAcesso(
     issuer: 'contabilpro',
     audience: 'contabilpro-api',
   });
-  return payload as PayloadAcesso & { iat: number; exp: number };
+  return payload as unknown as PayloadAcesso & { iat: number; exp: number };
 }

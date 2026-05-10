@@ -1,4 +1,5 @@
 import { Global, Module } from '@nestjs/common';
+
 import { AuditoriaControlador } from './auditoria.controlador';
 import { AuditoriaServico } from './auditoria.servico';
 
