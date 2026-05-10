@@ -1,0 +1,631 @@
+// ============================================================================
+// ContabilPro — Schema Prisma
+// Multi-tenant via coluna `escritorioId` em todas as tabelas transacionais.
+// Em produção, complementar com Row-Level Security do PostgreSQL.
+// ============================================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres", "postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgcrypto, citext, pg_trgm]
+}
+
+// ============================================================================
+// IDENTIDADE E ACESSO
+// ============================================================================
+
+enum StatusEscritorio {
+  ATIVO
+  SUSPENSO
+  CANCELADO
+}
+
+enum PlanoEscritorio {
+  FREE
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+model Escritorio {
+  id            String           @id @default(cuid())
+  slug          String           @unique
+  razaoSocial   String
+  nomeFantasia  String?
+  cnpj          String?          @unique
+  plano         PlanoEscritorio  @default(STARTER)
+  status        StatusEscritorio @default(ATIVO)
+  configuracoes Json             @default("{}")
+  criadoEm      DateTime         @default(now())
+  atualizadoEm  DateTime         @updatedAt
+
+  vinculos       VinculoUsuario[]
+  empresas       Empresa[]
+  documentos     Documento[]
+  obrigacoes     ModeloObrigacao[]
+  tarefas        Tarefa[]
+  conversas      Conversa[]
+  notificacoes   Notificacao[]
+  automacoes     Automacao[]
+  integracoes    Integracao[]
+  logsAuditoria  LogAuditoria[]
+  assinaturas    SolicitacaoAssinatura[]
+  categorias     CategoriaDocumento[]
+  obrigacoesEvts EventoWebhook[]
+
+  @@index([status])
+  @@map("escritorios")
+}
+
+enum StatusUsuario {
+  ATIVO
+  CONVIDADO
+  BLOQUEADO
+  DESATIVADO
+}
+
+model Usuario {
+  id              String        @id @default(cuid())
+  email           String        @unique
+  senhaHash       String?
+  nome            String
+  avatarUrl       String?
+  telefone        String?
+  cpf             String?       @unique
+  status          StatusUsuario @default(CONVIDADO)
+  emailVerificado Boolean       @default(false)
+  mfaSegredo      String?
+  mfaAtivo        Boolean       @default(false)
+  ultimoLoginEm   DateTime?
+  criadoEm        DateTime      @default(now())
+  atualizadoEm    DateTime      @updatedAt
+
+  vinculos       VinculoUsuario[]
+  sessoes        Sessao[]
+  notificacoes   Notificacao[]
+  mensagens      Mensagem[]
+  tarefasAtrib   Tarefa[]            @relation("TarefaResponsavel")
+  logsAuditoria  LogAuditoria[]
+
+  @@index([status])
+  @@map("usuarios")
+}
+
+enum PapelUsuario {
+  PROPRIETARIO
+  ADMIN
+  CONTADOR
+  ASSISTENTE
+  CLIENTE
+}
+
+model VinculoUsuario {
+  id            String       @id @default(cuid())
+  usuarioId     String
+  escritorioId  String
+  papel         PapelUsuario
+  permissoes    String[]     @default([])
+  empresaId     String?      // se preenchido, vínculo é de cliente final ligado a uma empresa
+  criadoEm      DateTime     @default(now())
+  atualizadoEm  DateTime     @updatedAt
+
+  usuario     Usuario     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  escritorio  Escritorio  @relation(fields: [escritorioId], references: [id], onDelete: Cascade)
+  empresa     Empresa?    @relation(fields: [empresaId], references: [id], onDelete: SetNull)
+
+  @@unique([usuarioId, escritorioId])
+  @@index([escritorioId, papel])
+  @@map("vinculos_usuario")
+}
+
+model Sessao {
+  id                String   @id @default(cuid())
+  usuarioId         String
+  refreshTokenHash  String   @unique
+  ip                String?
+  userAgent         String?
+  expiraEm          DateTime
+  revogadaEm        DateTime?
+  criadaEm          DateTime @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@map("sessoes")
+}
+
+// ============================================================================
+// CRM CONTÁBIL — empresas-cliente do escritório
+// ============================================================================
+
+enum RegimeTributario {
+  SIMPLES_NACIONAL
+  LUCRO_PRESUMIDO
+  LUCRO_REAL
+  MEI
+  IMUNE_ISENTO
+}
+
+enum StatusEmpresa {
+  ATIVA
+  INATIVA
+  ENCERRADA
+}
+
+model Empresa {
+  id            String           @id @default(cuid())
+  escritorioId  String
+  cnpj          String
+  razaoSocial   String
+  nomeFantasia  String?
+  inscricaoEstadual String?
+  inscricaoMunicipal String?
+  regime        RegimeTributario
+  status        StatusEmpresa    @default(ATIVA)
+  dataAbertura  DateTime?
+  endereco      Json?
+  observacoes   String?
+  criadoEm      DateTime         @default(now())
+  atualizadoEm  DateTime         @updatedAt
+
+  escritorio  Escritorio        @relation(fields: [escritorioId], references: [id], onDelete: Cascade)
+  contatos    ContatoEmpresa[]
+  documentos  Documento[]
+  tarefas     Tarefa[]
+  conversas   Conversa[]
+  vinculos    VinculoUsuario[]
+
+  @@unique([escritorioId, cnpj])
+  @@index([escritorioId, status])
+  @@map("empresas")
+}
+
+model ContatoEmpresa {
+  id          String   @id @default(cuid())
+  empresaId   String
+  nome        String
+  email       String?
+  telefone    String?
+  cargo       String?
+  principal   Boolean  @default(false)
+  criadoEm    DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+
+  @@index([empresaId])
+  @@map("contatos_empresa")
+}
+
+// ============================================================================
+// COFRE DE DOCUMENTOS
+// ============================================================================
+
+enum StatusDocumento {
+  ATIVO
+  ARQUIVADO
+  EXCLUIDO
+}
+
+model CategoriaDocumento {
+  id              String   @id @default(cuid())
+  escritorioId    String
+  nome            String
+  descricao       String?
+  diasRetencao    Int?
+  criadoEm        DateTime @default(now())
+  atualizadoEm    DateTime @updatedAt
+
+  escritorio Escritorio  @relation(fields: [escritorioId], references: [id], onDelete: Cascade)
+  documentos Documento[]
+
+  @@unique([escritorioId, nome])
+  @@map("categorias_documento")
+}
+
+model Documento {
+  id            String           @id @default(cuid())
+  escritorioId  String
+  empresaId     String?
+  categoriaId   String?
+  nome          String
+  mimeType      String
+  tamanhoBytes  BigInt
+  chaveStorage  String           @unique
+  hashSha256    String
+  versaoAtual   Int              @default(1)
+  status        StatusDocumento  @default(ATIVO)
+  metadados     Json             @default("{}")
+  criadoPorId   String?
+  criadoEm      DateTime         @default(now())
+  atualizadoEm  DateTime         @updatedAt
+
+  escritorio   Escritorio              @relation(fields: [escritorioId], references: [id], onDelete: Cascade)
+  empresa      Empresa?                @relation(fields: [empresaId], references: [id], onDelete: SetNull)
+  categoria    CategoriaDocumento?     @relation(fields: [categoriaId], references: [id], onDelete: SetNull)
+  versoes      VersaoDocumento[]
+  assinaturas  SolicitacaoAssinatura[]
+
+  @@index([escritorioId, empresaId])
+  @@index([escritorioId, categoriaId])
+  @@index([escritorioId, status])
+  @@map("documentos")
+}
+
+model VersaoDocumento {
+  id            String   @id @default(cuid())
+  documentoId   String
+  versao        Int
+  chaveStorage  String   @unique
+  hashSha256    String
+  tamanhoBytes  BigInt
+  notas         String?
+  criadoPorId   String?
+  criadoEm      DateTime @default(now())
+
+  documento Documento @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+
+  @@unique([documentoId, versao])
+  @@map("versoes_documento")
+}
+
+// ============================================================================
+// ASSINATURA ELETRÔNICA
+// ============================================================================
+
+enum StatusSolicitacaoAssinatura {
+  RASCUNHO
+  ENVIADA
+  PARCIAL
+  CONCLUIDA
+  CANCELADA
+  EXPIRADA
+}
+
+enum StatusSignatario {
+  PENDENTE
+  ASSINADO
+  RECUSADO
+}
+
+model SolicitacaoAssinatura {
+  id              String                       @id @default(cuid())
+  escritorioId    String
+  documentoId     String
+  provedor        String
+  externalId      String?
+  status          StatusSolicitacaoAssinatura  @default(RASCUNHO)
+  expiraEm        DateTime?
+  enviadaEm       DateTime?
+  concluidaEm     DateTime?
+  criadoEm        DateTime                     @default(now())
+  atualizadoEm    DateTime                     @updatedAt
+
+  escritorio Escritorio   @relation(fields: [escritorioId], references: [id], onDelete: Cascade)
+  documento  Documento    @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+  signatarios Signatario[]
+
+  @@index([escritorioId, status])
+  @@map("solicitacoes_assinatura")
+}
+
+model Signatario {
+  id              String           @id @default(cuid())
+  solicitacaoId   String
+  nome            String
+  email           String
+  cpf             String?
+  ordem           Int              @default(0)
+  status          StatusSignatario @default(PENDENTE)
+  assinadoEm      DateTime?
+  ip              String?
+  criadoEm        DateTime         @default(now())
+
+  solicitacao SolicitacaoAssinatura @relation(fields: [solicitacaoId], references: [id], onDelete: Cascade)
+
+  @@index([solicitacaoId])
+  @@map("signatarios")
+}
+
+// ============================================================================
+// OBRIGAÇÕES E TAREFAS
+// ============================================================================
+
+enum FrequenciaObrigacao {
+  UNICA
+  MENSAL
+  TRIMESTRAL
+  SEMESTRAL
+  ANUAL
+}
+
+model ModeloObrigacao {
+  id              String              @id @default(cuid())
+  escritorioId    String
+  nome            String
+  descricao       String?
+  frequencia      FrequenciaObrigacao
+  diaVencimento   Int?
+  regimes         RegimeTributario[]  @default([])
+  ativo           Boolean             @default(true)
+  criadoEm        DateTime            @default(now())
+  atualizadoEm    DateTime            @updatedAt
+
+  escritorio Escritorio @relation(fields: [escritorioId], references: [id], onDelete: Cascade)
+  tarefas    Tarefa[]
+
+  @@index([escritorioId, ativo])
+  @@map("modelos_obrigacao")
+}
+
+enum StatusTarefa {
+  PENDENTE
+  EM_ANDAMENTO
+  CONCLUIDA
+  ATRASADA
+  CANCELADA
+}
+
+enum PrioridadeTarefa {
+  BAIXA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
+model Tarefa {
+  id              String           @id @default(cuid())
+  escritorioId    String
+  empresaId       String?
+  modeloId        String?
+  titulo          String
+  descricao       String?
+  prioridade      PrioridadeTarefa @default(MEDIA)
+  status          StatusTarefa     @default(PENDENTE)
+  dataVencimento  DateTime
+  concluidaEm     DateTime?
+  responsavelId   String?
+  criadoEm        DateTime         @default(now())
+  atualizadoEm    DateTime         @updatedAt
+
+  escritorio  Escritorio       @relation(fields: [escritorioId], references: [id], onDelete: Cascade)
+  empresa     Empresa?         @relation(fields: [empresaId], references: [id], onDelete: SetNull)
+  modelo      ModeloObrigacao? @relation(fields: [modeloId], references: [id], onDelete: SetNull)
+  responsavel Usuario?         @relation("TarefaResponsavel", fields: [responsavelId], references: [id], onDelete: SetNull)
+
+  @@index([escritorioId, status])
+  @@index([escritorioId, dataVencimento])
+  @@index([responsavelId])
+  @@map("tarefas")
+}
+
+// ============================================================================
+// CENTRAL DE ATENDIMENTO (INBOX OMNICHANNEL)
+// ============================================================================
+
+enum CanalConversa {
+  PORTAL
+  EMAIL
+  WHATSAPP
+}
+
+enum StatusConversa {
+  ABERTA
+  AGUARDANDO_CLIENTE
+  EM_ATENDIMENTO
+  RESOLVIDA
+  ARQUIVADA
+}
+
+model Conversa {
+  id              String          @id @default(cuid())
+  escritorioId    String
+  empresaId       String?
+  canal           CanalConversa
+  assunto         String?
+  status          StatusConversa  @default(ABERTA)
+  slaVencimentoEm DateTime?
+  ultimaMensagemEm DateTime?
+  criadoEm        DateTime        @default(now())
+  atualizadoEm    DateTime        @updatedAt
+
+  escritorio Escritorio  @relation(fields: [escritorioId], references: [id], onDelete: Cascade)
+  empresa    Empresa?    @relation(fields: [empresaId], references: [id], onDelete: SetNull)
+  mensagens  Mensagem[]
+
+  @@index([escritorioId, status])
+  @@index([escritorioId, canal])
+  @@map("conversas")
+}
+
+model Mensagem {
+  id           String   @id @default(cuid())
+  conversaId   String
+  remetenteId  String?
+  corpo        String
+  anexos       Json     @default("[]")
+  externalId   String?
+  lidaEm       DateTime?
+  criadoEm     DateTime @default(now())
+
+  conversa  Conversa @relation(fields: [conversaId], references: [id], onDelete: Cascade)
+  remetente Usuario? @relation(fields: [remetenteId], references: [id], onDelete: SetNull)
+
+  @@index([conversaId, criadoEm])
+  @@map("mensagens")
+}
+
+// ============================================================================
+// NOTIFICAÇÕES
+// ============================================================================
+
+enum TipoNotificacao {
+  TAREFA_ATRIBUIDA
+  TAREFA_VENCENDO
+  DOCUMENTO_NOVO
+  ASSINATURA_PENDENTE
+  ASSINATURA_CONCLUIDA
+  MENSAGEM_NOVA
+  AUTOMACAO_FALHOU
+  SISTEMA
+}
+
+enum CanalNotificacao {
+  IN_APP
+  EMAIL
+  WHATSAPP
+  PUSH
+}
+
+model Notificacao {
+  id            String           @id @default(cuid())
+  escritorioId  String
+  usuarioId     String
+  tipo          TipoNotificacao
+  canal         CanalNotificacao @default(IN_APP)
+  titulo        String
+  corpo         String
+  payload       Json             @default("{}")
+  lidaEm        DateTime?
+  enviadaEm     DateTime?
+  criadoEm      DateTime         @default(now())
+
+  escritorio Escritorio @relation(fields: [escritorioId], references: [id], onDelete: Cascade)
+  usuario    Usuario    @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId, lidaEm])
+  @@index([escritorioId, tipo])
+  @@map("notificacoes")
+}
+
+// ============================================================================
+// AUTOMAÇÕES (engine no-code)
+// ============================================================================
+
+enum StatusAutomacao {
+  ATIVA
+  PAUSADA
+  RASCUNHO
+}
+
+enum StatusExecucaoAutomacao {
+  EXECUTANDO
+  CONCLUIDA
+  FALHOU
+  CANCELADA
+}
+
+model Automacao {
+  id            String           @id @default(cuid())
+  escritorioId  String
+  nome          String
+  descricao     String?
+  gatilho       Json
+  passos        Json
+  status        StatusAutomacao  @default(RASCUNHO)
+  criadoEm      DateTime         @default(now())
+  atualizadoEm  DateTime         @updatedAt
+
+  escritorio Escritorio          @relation(fields: [escritorioId], references: [id], onDelete: Cascade)
+  execucoes  ExecucaoAutomacao[]
+
+  @@index([escritorioId, status])
+  @@map("automacoes")
+}
+
+model ExecucaoAutomacao {
+  id            String                  @id @default(cuid())
+  automacaoId   String
+  status        StatusExecucaoAutomacao @default(EXECUTANDO)
+  contexto      Json                    @default("{}")
+  erro          String?
+  iniciadaEm    DateTime                @default(now())
+  finalizadaEm  DateTime?
+
+  automacao Automacao @relation(fields: [automacaoId], references: [id], onDelete: Cascade)
+
+  @@index([automacaoId, status])
+  @@map("execucoes_automacao")
+}
+
+// ============================================================================
+// INTEGRAÇÕES E WEBHOOKS
+// ============================================================================
+
+enum ProvedorIntegracao {
+  WHATSAPP_CLOUD
+  RESEND
+  ZAPSIGN
+  CLICKSIGN
+  D4SIGN
+  CUSTOMIZADA
+}
+
+enum StatusIntegracao {
+  ATIVA
+  INATIVA
+  ERRO
+}
+
+model Integracao {
+  id            String              @id @default(cuid())
+  escritorioId  String
+  provedor      ProvedorIntegracao
+  nome          String
+  credenciais   Json                // criptografar antes de persistir
+  configuracoes Json                @default("{}")
+  status        StatusIntegracao    @default(INATIVA)
+  ultimoErro    String?
+  criadoEm      DateTime            @default(now())
+  atualizadoEm  DateTime            @updatedAt
+
+  escritorio Escritorio @relation(fields: [escritorioId], references: [id], onDelete: Cascade)
+
+  @@unique([escritorioId, provedor, nome])
+  @@map("integracoes")
+}
+
+model EventoWebhook {
+  id            String   @id @default(cuid())
+  escritorioId  String?
+  origem        String
+  payload       Json
+  cabecalhos    Json     @default("{}")
+  processadoEm  DateTime?
+  erro          String?
+  recebidoEm    DateTime @default(now())
+
+  escritorio Escritorio? @relation(fields: [escritorioId], references: [id], onDelete: SetNull)
+
+  @@index([origem, processadoEm])
+  @@map("eventos_webhook")
+}
+
+// ============================================================================
+// AUDITORIA (LGPD art. 37)
+// ============================================================================
+
+model LogAuditoria {
+  id            String   @id @default(cuid())
+  escritorioId  String
+  atorId        String?
+  acao          String
+  entidade      String
+  entidadeId    String?
+  diff          Json?
+  ip            String?
+  userAgent     String?
+  criadoEm      DateTime @default(now())
+
+  escritorio Escritorio @relation(fields: [escritorioId], references: [id], onDelete: Cascade)
+  ator       Usuario?   @relation(fields: [atorId], references: [id], onDelete: SetNull)
+
+  @@index([escritorioId, entidade, entidadeId])
+  @@index([escritorioId, criadoEm])
+  @@map("logs_auditoria")
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@contabilpro/logger",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit",
+    "lint": "echo 'sem lint'",
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "test": "echo 'sem testes'"
+  },
+  "dependencies": {
+    "pino": "^9.5.0",
+    "pino-pretty": "^11.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

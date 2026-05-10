@@ -1,0 +1,53 @@
+# Dependências
+node_modules/
+.pnpm-store/
+
+# Build
+dist/
+build/
+.next/
+.turbo/
+out/
+*.tsbuildinfo
+
+# Testes
+coverage/
+playwright-report/
+test-results/
+.nyc_output/
+
+# Ambiente / segredos
+.env
+.env.local
+.env.*.local
+!.env.example
+*.pem
+*.key
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.recommended.json
+.idea/
+*.swp
+.DS_Store
+
+# Prisma
+packages/database/prisma/migrations/dev.db*
+
+# Docker
+infra/compose/data/
+
+# Cache
+.cache/
+.eslintcache
+.parcel-cache/
+
+# Sentry
+.sentryclirc
