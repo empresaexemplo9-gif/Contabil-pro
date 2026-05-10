@@ -1,0 +1,12 @@
+{
+  "extends": "@contabilpro/config-typescript/nestjs.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": ["src/**/*", "test/**/*"]
+}

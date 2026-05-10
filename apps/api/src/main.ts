@@ -1,0 +1,50 @@
+import 'reflect-metadata';
+
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Logger } from 'nestjs-pino';
+import helmet from 'helmet';
+
+import { AppModule } from './app.module';
+import { configurarEnv } from './config/env';
+import { FiltroExcecoesGlobais } from './comum/filtros/excecoes-globais.filtro';
+
+async function iniciar() {
+  const env = configurarEnv();
+
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  app.useLogger(app.get(Logger));
+
+  app.use(helmet());
+  app.enableCors({
+    origin: env.CORS_ORIGINS.split(',').map((s) => s.trim()),
+    credentials: true,
+  });
+  app.setGlobalPrefix('api/v1', { exclude: ['saude', 'docs'] });
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+  app.useGlobalFilters(new FiltroExcecoesGlobais());
+
+  const config = new DocumentBuilder()
+    .setTitle('ContabilPro API')
+    .setDescription('API REST da plataforma ContabilPro')
+    .setVersion('0.1.0')
+    .addBearerAuth()
+    .build();
+  const documento = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, documento);
+
+  await app.listen(env.API_PORT);
+  console.warn(`[api] escutando em http://localhost:${env.API_PORT}`);
+}
+
+iniciar().catch((erro) => {
+  console.error('[api] falha ao iniciar', erro);
+  process.exit(1);
+});
