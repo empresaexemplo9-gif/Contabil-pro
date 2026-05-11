@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import {
@@ -19,5 +19,29 @@ export class RelatoriosControlador {
   @Get('dashboard')
   dashboard(@UsuarioAtual() usuario: UsuarioAutenticado) {
     return this.servico.dashboard(usuario.escritorioId);
+  }
+
+  @Get('tarefas-por-status')
+  tarefasPorStatus(@UsuarioAtual() usuario: UsuarioAutenticado) {
+    return this.servico.tarefasPorStatus(usuario.escritorioId);
+  }
+
+  @Get('empresas-por-regime')
+  empresasPorRegime(@UsuarioAtual() usuario: UsuarioAutenticado) {
+    return this.servico.empresasPorRegime(usuario.escritorioId);
+  }
+
+  @Get('conversas-por-canal')
+  conversasPorCanal(@UsuarioAtual() usuario: UsuarioAutenticado) {
+    return this.servico.conversasPorCanal(usuario.escritorioId);
+  }
+
+  @Get('atividade')
+  atividade(
+    @UsuarioAtual() usuario: UsuarioAutenticado,
+    @Query('dias') dias?: string,
+  ) {
+    const n = Math.min(Math.max(Number(dias ?? 30), 7), 180);
+    return this.servico.atividade(usuario.escritorioId, n);
   }
 }
