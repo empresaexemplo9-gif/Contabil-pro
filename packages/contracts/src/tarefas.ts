@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { idSchema } from './comum.js';
+import { idSchema } from './comum';
 
 export const prioridadeTarefaSchema = z.enum(['BAIXA', 'MEDIA', 'ALTA', 'URGENTE']);
 export const statusTarefaSchema = z.enum([

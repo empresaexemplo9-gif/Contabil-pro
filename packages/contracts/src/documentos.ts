@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { idSchema } from './comum.js';
+import { idSchema } from './comum';
 
 export const criarDocumentoSchema = z.object({
   empresaId: idSchema.optional(),

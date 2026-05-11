@@ -1,3 +1,3 @@
-export * from './senhas.js';
-export * from './jwt.js';
-export * from './mfa.js';
+export * from './senhas';
+export * from './jwt';
+export * from './mfa';

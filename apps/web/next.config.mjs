@@ -3,9 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
   transpilePackages: ['@contabilpro/ui', '@contabilpro/contracts', '@contabilpro/utils'],
-  experimental: {
-    typedRoutes: true,
-  },
+  typedRoutes: false,
 };
 
 export default nextConfig;

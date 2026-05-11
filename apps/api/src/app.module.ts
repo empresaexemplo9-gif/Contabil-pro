@@ -16,14 +16,14 @@ import { AutomacoesModule } from './modulos/automacoes/automacoes.modulo';
 import { DocumentosModule } from './modulos/documentos/documentos.modulo';
 import { EmpresasModule } from './modulos/empresas/empresas.modulo';
 import { EscritoriosModule } from './modulos/escritorios/escritorios.modulo';
+import { FaturamentoModule } from './modulos/faturamento/faturamento.modulo';
 import { IntegracoesModule } from './modulos/integracoes/integracoes.modulo';
 import { NotificacoesModule } from './modulos/notificacoes/notificacoes.modulo';
 import { ObrigacoesModule } from './modulos/obrigacoes/obrigacoes.modulo';
 import { RbacModule } from './modulos/rbac/rbac.modulo';
-import { UsuariosModule } from './modulos/usuarios/usuarios.modulo';
-import { TarefasModule } from './modulos/tarefas/tarefas.modulo';
 import { RelatoriosModule } from './modulos/relatorios/relatorios.modulo';
-import { FaturamentoModule } from './modulos/faturamento/faturamento.modulo';
+import { TarefasModule } from './modulos/tarefas/tarefas.modulo';
+import { UsuariosModule } from './modulos/usuarios/usuarios.modulo';
 
 @Module({
   imports: [
