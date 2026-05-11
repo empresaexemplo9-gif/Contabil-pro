@@ -30,6 +30,41 @@ export function rotuloStatus(status: string): string {
   return STATUS_LABEL[status] ?? status;
 }
 
+const STATUS_TAREFA_LABEL: Record<string, string> = {
+  PENDENTE: 'Pendente',
+  EM_ANDAMENTO: 'Em andamento',
+  CONCLUIDA: 'Concluída',
+  ATRASADA: 'Atrasada',
+  CANCELADA: 'Cancelada',
+};
+
+export function rotuloStatusTarefa(status: string): string {
+  return STATUS_TAREFA_LABEL[status] ?? status;
+}
+
+const PRIORIDADE_LABEL: Record<string, string> = {
+  BAIXA: 'Baixa',
+  MEDIA: 'Média',
+  ALTA: 'Alta',
+  URGENTE: 'Urgente',
+};
+
+export function rotuloPrioridade(prioridade: string): string {
+  return PRIORIDADE_LABEL[prioridade] ?? prioridade;
+}
+
+const FREQUENCIA_LABEL: Record<string, string> = {
+  UNICA: 'Única',
+  MENSAL: 'Mensal',
+  TRIMESTRAL: 'Trimestral',
+  SEMESTRAL: 'Semestral',
+  ANUAL: 'Anual',
+};
+
+export function rotuloFrequencia(frequencia: string): string {
+  return FREQUENCIA_LABEL[frequencia] ?? frequencia;
+}
+
 export function formatarBytes(bytes: number | bigint): string {
   const n = typeof bytes === 'bigint' ? Number(bytes) : bytes;
   if (n < 1024) return `${n} B`;

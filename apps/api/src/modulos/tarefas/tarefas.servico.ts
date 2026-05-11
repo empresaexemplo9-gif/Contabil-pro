@@ -1,40 +1,117 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../../comum/prisma/prisma.service';
+import { AuditoriaServico } from '../auditoria/auditoria.servico';
 
+import type { UsuarioAutenticado } from '../../comum/decoradores/usuario-atual.decorador';
 import type {
-  atualizarTarefaSchema,
-  criarTarefaSchema,
-  Paginacao,
+  AtualizarTarefaEntrada,
+  BuscarTarefas,
+  CriarTarefaEntrada,
 } from '@contabilpro/contracts';
-import type { z } from 'zod';
+import type { Prisma } from '@contabilpro/database';
 
-
-
-type CriarTarefa = z.infer<typeof criarTarefaSchema>;
-type AtualizarTarefa = z.infer<typeof atualizarTarefaSchema>;
 
 @Injectable()
 export class TarefasServico {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditoria: AuditoriaServico,
+  ) {}
 
-  async listar(escritorioId: string, paginacao: Paginacao) {
+  async listar(escritorioId: string, filtros: BuscarTarefas) {
+    const where: Prisma.TarefaWhereInput = { escritorioId };
+    if (filtros.status) where.status = filtros.status;
+    if (filtros.prioridade) where.prioridade = filtros.prioridade;
+    if (filtros.empresaId) where.empresaId = filtros.empresaId;
+    if (filtros.responsavelId) where.responsavelId = filtros.responsavelId;
+    if (filtros.modeloId) where.modeloId = filtros.modeloId;
+    if (filtros.termo) {
+      where.OR = [
+        { titulo: { contains: filtros.termo, mode: 'insensitive' } },
+        { descricao: { contains: filtros.termo, mode: 'insensitive' } },
+      ];
+    }
+    if (filtros.vencendoEm) {
+      const limite = new Date();
+      limite.setDate(limite.getDate() + filtros.vencendoEm);
+      where.dataVencimento = { lte: limite };
+      where.status = { in: ['PENDENTE', 'EM_ANDAMENTO', 'ATRASADA'] };
+    }
+
     const [itens, total] = await Promise.all([
       this.prisma.tarefa.findMany({
-        where: { escritorioId },
-        orderBy: { dataVencimento: 'asc' },
-        skip: (paginacao.pagina - 1) * paginacao.tamanho,
-        take: paginacao.tamanho,
+        where,
+        orderBy: { [filtros.ordenarPor]: filtros.ordem },
+        skip: (filtros.pagina - 1) * filtros.tamanho,
+        take: filtros.tamanho,
+        include: {
+          empresa: { select: { id: true, razaoSocial: true } },
+          modelo: { select: { id: true, nome: true } },
+          responsavel: { select: { id: true, nome: true } },
+        },
       }),
-      this.prisma.tarefa.count({ where: { escritorioId } }),
+      this.prisma.tarefa.count({ where }),
     ]);
-    return { itens, total, pagina: paginacao.pagina, tamanho: paginacao.tamanho };
+
+    return { itens, total, pagina: filtros.pagina, tamanho: filtros.tamanho };
   }
 
-  criar(escritorioId: string, dados: CriarTarefa) {
-    return this.prisma.tarefa.create({
+  async obter(escritorioId: string, id: string) {
+    const tarefa = await this.prisma.tarefa.findFirst({
+      where: { id, escritorioId },
+      include: {
+        empresa: { select: { id: true, razaoSocial: true } },
+        modelo: { select: { id: true, nome: true } },
+        responsavel: { select: { id: true, nome: true, email: true } },
+      },
+    });
+    if (!tarefa) throw new NotFoundException('Tarefa não encontrada');
+    return tarefa;
+  }
+
+  async metricas(escritorioId: string) {
+    const agora = new Date();
+    const fimDia = new Date(agora);
+    fimDia.setHours(23, 59, 59, 999);
+    const em7Dias = new Date(agora);
+    em7Dias.setDate(em7Dias.getDate() + 7);
+
+    const [pendentes, emAndamento, atrasadas, vencemHoje, proximos7Dias, concluidasMes] =
+      await Promise.all([
+        this.prisma.tarefa.count({ where: { escritorioId, status: 'PENDENTE' } }),
+        this.prisma.tarefa.count({ where: { escritorioId, status: 'EM_ANDAMENTO' } }),
+        this.prisma.tarefa.count({ where: { escritorioId, status: 'ATRASADA' } }),
+        this.prisma.tarefa.count({
+          where: {
+            escritorioId,
+            status: { in: ['PENDENTE', 'EM_ANDAMENTO'] },
+            dataVencimento: { lte: fimDia, gte: new Date(agora.setHours(0, 0, 0, 0)) },
+          },
+        }),
+        this.prisma.tarefa.count({
+          where: {
+            escritorioId,
+            status: { in: ['PENDENTE', 'EM_ANDAMENTO'] },
+            dataVencimento: { lte: em7Dias },
+          },
+        }),
+        this.prisma.tarefa.count({
+          where: {
+            escritorioId,
+            status: 'CONCLUIDA',
+            concluidaEm: { gte: new Date(new Date().setDate(1)) },
+          },
+        }),
+      ]);
+
+    return { pendentes, emAndamento, atrasadas, vencemHoje, proximos7Dias, concluidasMes };
+  }
+
+  async criar(usuario: UsuarioAutenticado, dados: CriarTarefaEntrada) {
+    const tarefa = await this.prisma.tarefa.create({
       data: {
-        escritorioId,
+        escritorioId: usuario.escritorioId,
         empresaId: dados.empresaId ?? null,
         modeloId: dados.modeloId ?? null,
         titulo: dados.titulo,
@@ -44,17 +121,48 @@ export class TarefasServico {
         responsavelId: dados.responsavelId ?? null,
       },
     });
+    await this.auditoria.registrar({
+      escritorioId: usuario.escritorioId,
+      atorId: usuario.id,
+      acao: 'tarefa.criada',
+      entidade: 'Tarefa',
+      entidadeId: tarefa.id,
+    });
+    return tarefa;
   }
 
-  async atualizar(escritorioId: string, id: string, dados: AtualizarTarefa) {
-    const existente = await this.prisma.tarefa.findFirst({ where: { id, escritorioId } });
-    if (!existente) throw new NotFoundException('Tarefa não encontrada');
-    return this.prisma.tarefa.update({
-      where: { id },
-      data: {
-        ...dados,
-        concluidaEm: dados.status === 'CONCLUIDA' ? new Date() : undefined,
-      },
+  async atualizar(
+    usuario: UsuarioAutenticado,
+    id: string,
+    dados: AtualizarTarefaEntrada,
+  ) {
+    const existente = await this.prisma.tarefa.findFirst({
+      where: { id, escritorioId: usuario.escritorioId },
     });
+    if (!existente) throw new NotFoundException('Tarefa não encontrada');
+
+    const concluidaEm =
+      dados.status === 'CONCLUIDA' && existente.status !== 'CONCLUIDA'
+        ? new Date()
+        : dados.status && dados.status !== 'CONCLUIDA'
+          ? null
+          : undefined;
+
+    const tarefa = await this.prisma.tarefa.update({
+      where: { id },
+      data: { ...dados, concluidaEm },
+    });
+
+    if (dados.status && dados.status !== existente.status) {
+      await this.auditoria.registrar({
+        escritorioId: usuario.escritorioId,
+        atorId: usuario.id,
+        acao: 'tarefa.status_alterado',
+        entidade: 'Tarefa',
+        entidadeId: id,
+        diff: { de: existente.status, para: dados.status },
+      });
+    }
+    return tarefa;
   }
 }

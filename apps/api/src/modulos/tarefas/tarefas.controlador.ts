@@ -1,7 +1,19 @@
-import { atualizarTarefaSchema, criarTarefaSchema, paginacaoSchema } from '@contabilpro/contracts';
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  atualizarTarefaSchema,
+  buscarTarefasSchema,
+  criarTarefaSchema,
+} from '@contabilpro/contracts';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-
 
 import {
   UsuarioAtual,
@@ -20,12 +32,22 @@ export class TarefasControlador {
 
   @Get()
   listar(@UsuarioAtual() usuario: UsuarioAutenticado, @Query() consulta: unknown) {
-    return this.servico.listar(usuario.escritorioId, paginacaoSchema.parse(consulta));
+    return this.servico.listar(usuario.escritorioId, buscarTarefasSchema.parse(consulta));
+  }
+
+  @Get('metricas')
+  metricas(@UsuarioAtual() usuario: UsuarioAutenticado) {
+    return this.servico.metricas(usuario.escritorioId);
+  }
+
+  @Get(':id')
+  obter(@UsuarioAtual() usuario: UsuarioAutenticado, @Param('id') id: string) {
+    return this.servico.obter(usuario.escritorioId, id);
   }
 
   @Post()
   criar(@UsuarioAtual() usuario: UsuarioAutenticado, @Body() corpo: unknown) {
-    return this.servico.criar(usuario.escritorioId, criarTarefaSchema.parse(corpo));
+    return this.servico.criar(usuario, criarTarefaSchema.parse(corpo));
   }
 
   @Patch(':id')
@@ -34,6 +56,6 @@ export class TarefasControlador {
     @Param('id') id: string,
     @Body() corpo: unknown,
   ) {
-    return this.servico.atualizar(usuario.escritorioId, id, atualizarTarefaSchema.parse(corpo));
+    return this.servico.atualizar(usuario, id, atualizarTarefaSchema.parse(corpo));
   }
 }

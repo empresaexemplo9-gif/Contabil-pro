@@ -6,6 +6,7 @@ const ITENS_MENU = [
   { href: '/painel/empresas', titulo: 'Empresas' },
   { href: '/painel/documentos', titulo: 'Documentos' },
   { href: '/painel/tarefas', titulo: 'Tarefas' },
+  { href: '/painel/obrigacoes', titulo: 'Obrigações' },
   { href: '/painel/atendimento', titulo: 'Atendimento' },
   { href: '/painel/automacoes', titulo: 'Automações' },
   { href: '/painel/relatorios', titulo: 'Relatórios' },
