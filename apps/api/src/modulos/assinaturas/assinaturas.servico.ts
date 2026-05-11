@@ -1,16 +1,21 @@
 import { criarSolicitacaoAssinaturaSchema } from '@contabilpro/contracts';
+import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { z } from 'zod';
 
-
 import { PrismaService } from '../../comum/prisma/prisma.service';
 import { configurarEnv } from '../../config/env';
+
+import type { Queue } from 'bullmq';
 
 type CriarSolicitacao = z.infer<typeof criarSolicitacaoAssinaturaSchema>;
 
 @Injectable()
 export class AssinaturasServico {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectQueue('assinaturas') private readonly fila: Queue,
+  ) {}
 
   listar(escritorioId: string) {
     return this.prisma.solicitacaoAssinatura.findMany({
@@ -29,9 +34,15 @@ export class AssinaturasServico {
     return solicitacao;
   }
 
-  criar(escritorioId: string, dados: CriarSolicitacao) {
+  async criar(escritorioId: string, dados: CriarSolicitacao) {
     const env = configurarEnv();
-    return this.prisma.solicitacaoAssinatura.create({
+    const documento = await this.prisma.documento.findFirst({
+      where: { id: dados.documentoId, escritorioId },
+      select: { id: true, nome: true },
+    });
+    if (!documento) throw new NotFoundException('Documento não encontrado');
+
+    const solicitacao = await this.prisma.solicitacaoAssinatura.create({
       data: {
         escritorioId,
         documentoId: dados.documentoId,
@@ -48,6 +59,23 @@ export class AssinaturasServico {
       },
       include: { signatarios: true },
     });
+
+    // Envio real é feito pelo worker (precisa de URL presignada, retries,
+    // call externa). Aqui só enfileiramos com attempts + backoff exponencial.
+    await this.fila.add(
+      'enviar',
+      {
+        escritorioId,
+        solicitacaoId: solicitacao.id,
+        documentoId: documento.id,
+        nomeDocumento: documento.nome,
+        signatarios: dados.signatarios,
+        expiraEm: dados.expiraEm?.toISOString() ?? null,
+      },
+      { attempts: 3, backoff: { type: 'exponential', delay: 10_000 } },
+    );
+
+    return solicitacao;
   }
 
   async cancelar(escritorioId: string, id: string) {

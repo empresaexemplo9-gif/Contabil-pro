@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Headers,
-  HttpCode,
-  Post,
-  Query,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Query, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 
@@ -15,6 +6,7 @@ import { Publico } from '../../comum/decoradores/publico.decorador';
 
 import { IntegracoesServico } from './integracoes.servico';
 import { WhatsappServico } from './whatsapp/whatsapp.servico';
+import { ZapsignServico } from './zapsign/zapsign.servico';
 
 import type { Response } from 'express';
 
@@ -24,12 +16,9 @@ export class WebhooksControlador {
   constructor(
     private readonly servico: IntegracoesServico,
     private readonly whatsapp: WhatsappServico,
+    private readonly zapsign: ZapsignServico,
   ) {}
 
-  /**
-   * Endpoint de verificação do webhook do WhatsApp. A Meta envia GET com
-   * hub.mode='subscribe', hub.verify_token e hub.challenge ao registrar a URL.
-   */
   @Publico()
   @Get('whatsapp')
   async verificarWhatsapp(
@@ -56,8 +45,11 @@ export class WebhooksControlador {
   }
 
   @Publico()
-  @Post('assinatura')
-  assinatura(@Headers('x-evento') origem: string, @Body() payload: unknown) {
-    return this.servico.registrarEventoWebhook(null, origem ?? 'assinatura', payload);
+  @Post('zapsign')
+  @HttpCode(200)
+  async receberZapsign(@Body() payload: unknown) {
+    await this.servico.registrarEventoWebhook(null, 'zapsign', payload);
+    await this.zapsign.processarWebhook(payload);
+    return { ok: true };
   }
 }

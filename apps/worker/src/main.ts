@@ -6,6 +6,7 @@ import { Redis } from 'ioredis';
 import { iniciarAgendadores } from './agendadores/index.js';
 import { env, NOMES_FILAS } from './config.js';
 import { detectarAtrasadas } from './jobs/detectar-atrasadas.job.js';
+import { enviarAssinatura } from './jobs/enviar-assinatura.job.js';
 import { processarEmail } from './jobs/enviar-email.job.js';
 import { processarNotificacao } from './jobs/enviar-notificacao.job.js';
 import { processarWhatsapp } from './jobs/enviar-whatsapp.job.js';
@@ -36,6 +37,7 @@ const workers: Worker[] = [
   new Worker(NOMES_FILAS.notificacoes, processarNotificacao, opcoesBase),
   new Worker(NOMES_FILAS.geradorTarefas, gerarTarefasAutomaticas, { ...opcoesBase, concurrency: 1 }),
   new Worker(NOMES_FILAS.detectorAtrasadas, detectarAtrasadas, { ...opcoesBase, concurrency: 1 }),
+  new Worker(NOMES_FILAS.assinaturas, enviarAssinatura, opcoesBase),
 ];
 
 for (const w of workers) {

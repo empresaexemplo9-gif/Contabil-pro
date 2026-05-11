@@ -20,4 +20,5 @@ export const NOMES_FILAS = {
   obrigacoes: 'obrigacoes',
   geradorTarefas: 'gerador-tarefas',
   detectorAtrasadas: 'detector-atrasadas',
+  assinaturas: 'assinaturas',
 } as const;
