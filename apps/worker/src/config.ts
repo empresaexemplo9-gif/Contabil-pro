@@ -18,4 +18,6 @@ export const NOMES_FILAS = {
   documentos: 'documentos',
   automacoes: 'automacoes',
   obrigacoes: 'obrigacoes',
+  geradorTarefas: 'gerador-tarefas',
+  detectorAtrasadas: 'detector-atrasadas',
 } as const;
