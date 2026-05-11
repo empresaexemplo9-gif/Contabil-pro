@@ -1,10 +1,9 @@
 /**
- * Adapter para a API da ZapSign (assinatura eletrônica brasileira).
+ * Adapter portátil para a API da ZapSign (assinatura eletrônica BR).
  * Documentação: https://docs.zapsign.com.br/
  *
- * Modelo: criamos um documento a partir de uma URL pública (presignada S3)
- * e listamos os signatários. A ZapSign envia e-mail/SMS aos signatários
- * e dispara webhooks à medida que assinam.
+ * Sem dependência de Nest/Prisma; consumido pela API server (parse de
+ * webhook) e pelo worker (criação de documento).
  */
 
 const URL_BASE = 'https://api.zapsign.com.br';
@@ -29,8 +28,8 @@ export interface CriarDocumentoEntrada {
 
 export interface DocumentoCriado {
   externalId: string;
-  signatarios: Array<{ token: string; email: string; nome: string }>;
   status: string;
+  signatarios: Array<{ token: string; email: string; nome: string }>;
 }
 
 export async function criarDocumento(
@@ -82,7 +81,7 @@ export async function criarDocumento(
 export interface EventoWebhookZapsign {
   /** Token do documento no ZapSign. */
   documentoExternalId: string;
-  /** Email/token do signatário se evento for específico de um signatário. */
+  /** Email do signatário se o evento for específico de um signatário. */
   signatarioEmail?: string;
   signatarioStatus?: 'ASSINADO' | 'RECUSADO';
   documentoStatus?: 'PARCIAL' | 'CONCLUIDA' | 'EXPIRADA' | 'CANCELADA';
@@ -98,10 +97,8 @@ const MAP_STATUS_DOC: Record<string, EventoWebhookZapsign['documentoStatus']> = 
 /**
  * Normaliza o evento de webhook do ZapSign em uma estrutura agnóstica do
  * provedor para que o serviço atualize signatários/solicitação no banco.
- *
- * Formato esperado (resumido): { event_type, doc: { token, status }, signer? }
  */
-export function parsearWebhookZapsign(payload: unknown): EventoWebhookZapsign | null {
+export function parsearWebhook(payload: unknown): EventoWebhookZapsign | null {
   const obj = payload as {
     event_type?: string;
     doc?: { token?: string; open_id?: string; status?: string };

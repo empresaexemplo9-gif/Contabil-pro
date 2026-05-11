@@ -1,8 +1,8 @@
+import { parsearWebhookZapsign } from '@contabilpro/integracoes';
 import { Injectable, Logger } from '@nestjs/common';
 
 import { PrismaService } from '../../../comum/prisma/prisma.service';
 
-import { parsearWebhookZapsign } from './zapsign.adapter';
 
 @Injectable()
 export class ZapsignServico {

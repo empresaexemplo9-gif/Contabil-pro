@@ -18,6 +18,7 @@
     "@contabilpro/auth-core": "workspace:*",
     "@contabilpro/contracts": "workspace:*",
     "@contabilpro/database": "workspace:*",
+    "@contabilpro/integracoes": "workspace:*",
     "@contabilpro/logger": "workspace:*",
     "@contabilpro/utils": "workspace:*",
     "@nestjs/bullmq": "^10.2.1",

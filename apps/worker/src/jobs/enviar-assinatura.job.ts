@@ -1,9 +1,12 @@
 
 import { prisma } from '@contabilpro/database';
+import {
+  criarDocumentoZapsign,
+  type CredenciaisZapsign,
+} from '@contabilpro/integracoes';
 import { logger } from '@contabilpro/logger';
 
 import { gerarUrlDownload } from '../adapters/storage.adapter.js';
-import { criarDocumento, type CredenciaisZapsign } from '../adapters/zapsign.adapter.js';
 
 import type { Job } from 'bullmq';
 
@@ -51,7 +54,7 @@ export async function enviarAssinatura(job: Job<PayloadEnviarAssinatura>): Promi
   const urlPdf = await gerarUrlDownload(documento.chaveStorage, 900);
 
   try {
-    const criado = await criarDocumento(
+    const criado = await criarDocumentoZapsign(
       { apiToken: credenciais.apiToken },
       {
         nome: nomeDocumento,

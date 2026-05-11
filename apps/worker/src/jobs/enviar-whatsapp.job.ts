@@ -1,8 +1,11 @@
 
 import { prisma } from '@contabilpro/database';
+import {
+  enviarMensagemWhatsapp,
+  type CredenciaisWhatsapp,
+} from '@contabilpro/integracoes';
 import { logger } from '@contabilpro/logger';
 
-import { enviarMensagemTexto, type CredenciaisWhatsapp } from '../adapters/whatsapp.adapter.js';
 
 import type { Job } from 'bullmq';
 
@@ -47,7 +50,7 @@ export async function processarWhatsapp(job: Job<PayloadWhatsapp>): Promise<void
   }
 
   try {
-    const { wamid } = await enviarMensagemTexto(
+    const { wamid } = await enviarMensagemWhatsapp(
       { phoneNumberId: credenciais.phoneNumberId, token: credenciais.token },
       telefone,
       texto,

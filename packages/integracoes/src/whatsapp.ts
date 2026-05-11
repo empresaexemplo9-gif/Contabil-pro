@@ -1,10 +1,10 @@
 /**
- * Adapter para a WhatsApp Cloud API (Meta Graph). Cobre o subconjunto que
- * usamos: envio de mensagens de texto e parsing do payload de webhook.
+ * Adapter portátil para a WhatsApp Cloud API (Meta Graph). Cobre o
+ * subconjunto que usamos: envio de mensagens de texto e parsing do payload
+ * de webhook. Sem dependência de Nest ou Prisma — pode ser consumido pelo
+ * API server, pelo worker ou por scripts.
  *
  * Documentação: https://developers.facebook.com/docs/whatsapp/cloud-api
- *
- * Mantemos o adapter sem dependência de Nest para reuso pelo worker.
  */
 
 const URL_BASE = 'https://graph.facebook.com/v20.0';
@@ -97,9 +97,7 @@ export function parsearWebhook(payload: unknown): EventoWebhook {
           remetenteTelefone: m.from,
           remetenteNome: contatos.get(m.from),
           texto,
-          timestamp: m.timestamp
-            ? new Date(Number(m.timestamp) * 1000)
-            : new Date(),
+          timestamp: m.timestamp ? new Date(Number(m.timestamp) * 1000) : new Date(),
         });
       }
     }

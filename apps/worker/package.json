@@ -17,6 +17,7 @@
     "@aws-sdk/s3-request-presigner": "^3.677.0",
     "@contabilpro/contracts": "workspace:*",
     "@contabilpro/database": "workspace:*",
+    "@contabilpro/integracoes": "workspace:*",
     "@contabilpro/logger": "workspace:*",
     "@contabilpro/utils": "workspace:*",
     "bullmq": "^5.21.2",

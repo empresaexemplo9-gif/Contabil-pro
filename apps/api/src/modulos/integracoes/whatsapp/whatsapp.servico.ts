@@ -1,3 +1,7 @@
+import {
+  parsearWebhookWhatsapp,
+  type MensagemRecebida,
+} from '@contabilpro/integracoes';
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 
 
@@ -5,7 +9,6 @@ import { PrismaService } from '../../../comum/prisma/prisma.service';
 import { AtendimentoGateway } from '../../atendimento/atendimento.gateway';
 import { IntegracoesServico } from '../integracoes.servico';
 
-import { parsearWebhook, type MensagemRecebida } from './whatsapp.adapter';
 
 import type { Prisma } from '@contabilpro/database';
 
@@ -47,7 +50,7 @@ export class WhatsappServico {
    * uma conversa (criando se não existir). Emite broadcast via Socket.IO.
    */
   async processarWebhook(payload: unknown): Promise<{ processadas: number; ignoradas: number }> {
-    const evento = parsearWebhook(payload);
+    const evento = parsearWebhookWhatsapp(payload);
 
     let processadas = 0;
     let ignoradas = 0;
