@@ -1,4 +1,19 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  buscarConversasSchema,
+  criarConversaSchema,
+  enviarMensagemSchema,
+  mudarStatusConversaSchema,
+} from '@contabilpro/contracts';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import {
@@ -17,21 +32,42 @@ export class AtendimentoControlador {
   constructor(private readonly servico: AtendimentoServico) {}
 
   @Get('conversas')
-  listarConversas(@UsuarioAtual() usuario: UsuarioAutenticado) {
-    return this.servico.listarConversas(usuario.escritorioId);
+  listar(@UsuarioAtual() usuario: UsuarioAutenticado, @Query() consulta: unknown) {
+    return this.servico.listar(usuario.escritorioId, buscarConversasSchema.parse(consulta));
+  }
+
+  @Post('conversas')
+  criar(@UsuarioAtual() usuario: UsuarioAutenticado, @Body() corpo: unknown) {
+    return this.servico.criar(usuario, criarConversaSchema.parse(corpo));
   }
 
   @Get('conversas/:id')
-  obterConversa(@UsuarioAtual() usuario: UsuarioAutenticado, @Param('id') id: string) {
-    return this.servico.obterConversa(usuario.escritorioId, id);
+  obter(@UsuarioAtual() usuario: UsuarioAutenticado, @Param('id') id: string) {
+    return this.servico.obter(usuario.escritorioId, id);
   }
 
   @Post('conversas/:id/mensagens')
-  enviarMensagem(
+  enviar(
     @UsuarioAtual() usuario: UsuarioAutenticado,
     @Param('id') id: string,
-    @Body() corpo: { texto: string },
+    @Body() corpo: unknown,
   ) {
-    return this.servico.enviarMensagem(usuario, id, corpo.texto);
+    const dados = enviarMensagemSchema.parse(corpo);
+    return this.servico.enviarMensagem(usuario, id, dados.texto);
+  }
+
+  @Post('conversas/:id/marcar-lida')
+  marcarLida(@UsuarioAtual() usuario: UsuarioAutenticado, @Param('id') id: string) {
+    return this.servico.marcarLida(usuario, id);
+  }
+
+  @Patch('conversas/:id/status')
+  mudarStatus(
+    @UsuarioAtual() usuario: UsuarioAutenticado,
+    @Param('id') id: string,
+    @Body() corpo: unknown,
+  ) {
+    const dados = mudarStatusConversaSchema.parse(corpo);
+    return this.servico.mudarStatus(usuario, id, dados.status);
   }
 }
