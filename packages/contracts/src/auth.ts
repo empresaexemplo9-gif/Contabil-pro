@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { emailSchema } from './comum';
 
 export const loginEntradaSchema = z.object({
@@ -24,24 +25,42 @@ export type RefreshEntrada = z.infer<typeof refreshEntradaSchema>;
 export const recuperarSenhaSchema = z.object({
   email: emailSchema,
 });
+export type RecuperarSenhaEntrada = z.infer<typeof recuperarSenhaSchema>;
+
+const senhaForte = z
+  .string()
+  .min(10, 'Senha deve ter ao menos 10 caracteres')
+  .regex(/[A-Z]/, 'Inclua ao menos uma letra maiúscula')
+  .regex(/[a-z]/, 'Inclua ao menos uma letra minúscula')
+  .regex(/\d/, 'Inclua ao menos um dígito')
+  .regex(/[^A-Za-z0-9]/, 'Inclua ao menos um símbolo');
 
 export const redefinirSenhaSchema = z
   .object({
     token: z.string().min(20),
-    novaSenha: z
-      .string()
-      .min(10, 'Senha deve ter ao menos 10 caracteres')
-      .regex(/[A-Z]/, 'Inclua ao menos uma letra maiúscula')
-      .regex(/[a-z]/, 'Inclua ao menos uma letra minúscula')
-      .regex(/\d/, 'Inclua ao menos um dígito')
-      .regex(/[^A-Za-z0-9]/, 'Inclua ao menos um símbolo'),
+    novaSenha: senhaForte,
     confirmacao: z.string(),
   })
   .refine((dados) => dados.novaSenha === dados.confirmacao, {
     message: 'Senhas não conferem',
     path: ['confirmacao'],
   });
+export type RedefinirSenhaEntrada = z.infer<typeof redefinirSenhaSchema>;
+
+export const iniciarMfaSaidaSchema = z.object({
+  segredo: z.string(),
+  uri: z.string(),
+});
+export type IniciarMfaSaida = z.infer<typeof iniciarMfaSaidaSchema>;
 
 export const ativarMfaSchema = z.object({
+  segredo: z.string().min(16),
   codigo: z.string().length(6),
 });
+export type AtivarMfaEntrada = z.infer<typeof ativarMfaSchema>;
+
+export const desativarMfaSchema = z.object({
+  senha: z.string().min(8),
+  codigo: z.string().length(6),
+});
+export type DesativarMfaEntrada = z.infer<typeof desativarMfaSchema>;
