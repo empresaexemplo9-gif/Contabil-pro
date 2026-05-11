@@ -5,3 +5,4 @@ export * from './documentos';
 export * from './tarefas';
 export * from './atendimento';
 export * from './relatorios';
+export * from './integracoes';

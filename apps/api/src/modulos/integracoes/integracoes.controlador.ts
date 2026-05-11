@@ -1,4 +1,13 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { criarIntegracaoSchema } from '@contabilpro/contracts';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Papeis } from '../../comum/decoradores/papeis.decorador';
@@ -22,5 +31,23 @@ export class IntegracoesControlador {
   @Get()
   listar(@UsuarioAtual() usuario: UsuarioAutenticado) {
     return this.servico.listar(usuario.escritorioId);
+  }
+
+  @Papeis('PROPRIETARIO', 'ADMIN')
+  @Post()
+  criar(@UsuarioAtual() usuario: UsuarioAutenticado, @Body() corpo: unknown) {
+    return this.servico.criar(usuario, criarIntegracaoSchema.parse(corpo));
+  }
+
+  @Papeis('PROPRIETARIO', 'ADMIN')
+  @Post(':id/desativar')
+  desativar(@UsuarioAtual() usuario: UsuarioAutenticado, @Param('id') id: string) {
+    return this.servico.desativar(usuario, id);
+  }
+
+  @Papeis('PROPRIETARIO', 'ADMIN')
+  @Delete(':id')
+  remover(@UsuarioAtual() usuario: UsuarioAutenticado, @Param('id') id: string) {
+    return this.servico.remover(usuario, id);
   }
 }

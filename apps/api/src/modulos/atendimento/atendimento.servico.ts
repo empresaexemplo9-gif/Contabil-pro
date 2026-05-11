@@ -1,3 +1,4 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 
@@ -13,6 +14,7 @@ import type {
   StatusConversa,
 } from '@contabilpro/contracts';
 import type { Prisma } from '@contabilpro/database';
+import type { Queue } from 'bullmq';
 
 @Injectable()
 export class AtendimentoServico {
@@ -21,6 +23,7 @@ export class AtendimentoServico {
     private readonly auditoria: AuditoriaServico,
     @Inject(forwardRef(() => AtendimentoGateway))
     private readonly gateway: AtendimentoGateway,
+    @InjectQueue('whatsapp') private readonly filaWhatsapp: Queue,
   ) {}
 
   async listar(escritorioId: string, filtros: BuscarConversas) {
@@ -86,10 +89,7 @@ export class AtendimentoServico {
         status: 'ABERTA',
         ultimaMensagemEm: agora,
         mensagens: {
-          create: {
-            remetenteId: usuario.id,
-            corpo: dados.primeiraMensagem,
-          },
+          create: { remetenteId: usuario.id, corpo: dados.primeiraMensagem },
         },
       },
       include: { mensagens: true },
@@ -102,7 +102,7 @@ export class AtendimentoServico {
   async enviarMensagem(usuario: UsuarioAutenticado, conversaId: string, texto: string) {
     const conversa = await this.prisma.conversa.findFirst({
       where: { id: conversaId, escritorioId: usuario.escritorioId },
-      select: { id: true },
+      select: { id: true, canal: true },
     });
     if (!conversa) throw new NotFoundException('Conversa não encontrada');
 
@@ -118,6 +118,23 @@ export class AtendimentoServico {
 
     this.gateway.broadcastMensagemNova(usuario.escritorioId, conversaId, mensagem);
     this.gateway.broadcastConversaAtualizada(usuario.escritorioId, conversaId);
+
+    // Outbound real: se a conversa é WhatsApp, enfileira para o worker entregar
+    // via Graph API. A mensagem já está persistida e visível na UI; o envio
+    // externo acontece em background com retries.
+    if (conversa.canal === 'WHATSAPP') {
+      await this.filaWhatsapp.add(
+        'enviar',
+        {
+          escritorioId: usuario.escritorioId,
+          conversaId: conversa.id,
+          mensagemId: mensagem.id,
+          texto,
+        },
+        { attempts: 3, backoff: { type: 'exponential', delay: 5000 } },
+      );
+    }
+
     return mensagem;
   }
 
