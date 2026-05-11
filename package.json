@@ -22,6 +22,7 @@
     "db:migrar": "pnpm --filter @contabilpro/database run db:migrar",
     "db:semear": "pnpm --filter @contabilpro/database run db:semear",
     "db:estudio": "pnpm --filter @contabilpro/database exec prisma studio",
+    "db:rls": "pnpm --filter @contabilpro/database run db:rls",
     "infra:subir": "docker compose -f infra/compose/docker-compose.yml up -d",
     "infra:descer": "docker compose -f infra/compose/docker-compose.yml down",
     "infra:logs": "docker compose -f infra/compose/docker-compose.yml logs -f",

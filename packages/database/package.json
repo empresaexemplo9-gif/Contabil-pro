@@ -16,7 +16,8 @@
     "db:gerar": "prisma generate",
     "db:migrar": "prisma migrate dev",
     "db:semear": "tsx prisma/seed.ts",
-    "db:reset": "prisma migrate reset"
+    "db:reset": "prisma migrate reset",
+    "db:rls": "tsx prisma/aplicar-rls.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0"

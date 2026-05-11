@@ -1,12 +1,13 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 
 import { PrismaModule } from './comum/prisma/prisma.module';
 import { SaudeController } from './comum/saude/saude.controlador';
+import { TenantInterceptor } from './comum/tenant/tenant.interceptor';
 import { configurarEnv } from './config/env';
 import { AssinaturasModule } from './modulos/assinaturas/assinaturas.modulo';
 import { AtendimentoModule } from './modulos/atendimento/atendimento.modulo';
@@ -61,6 +62,9 @@ import { UsuariosModule } from './modulos/usuarios/usuarios.modulo';
     FaturamentoModule,
   ],
   controllers: [SaudeController],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_INTERCEPTOR, useClass: TenantInterceptor },
+  ],
 })
 export class AppModule {}

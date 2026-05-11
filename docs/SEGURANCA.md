@@ -19,7 +19,12 @@
 
 - **RBAC:** papéis fixos (`PROPRIETARIO`, `ADMIN`, `CONTADOR`, `ASSISTENTE`, `CLIENTE`).
 - **ABAC:** lista de permissões granulares por vínculo (`empresas:escrever`, etc).
-- **Multi-tenant:** todo recurso é filtrado por `escritorioId` extraído do JWT. Em produção, RLS do Postgres reforça via `current_setting('app.escritorio_id')`.
+- **Multi-tenant:** todo recurso é filtrado por `escritorioId` extraído do JWT (camada de aplicação). O Postgres reforça via **Row-Level Security**:
+  - Políticas em todas as tabelas tenant-scoped (vide `packages/database/prisma/sql/habilitar-rls.sql`).
+  - Cada requisição autenticada abre uma transação interativa e executa `SET LOCAL app.escritorio_id = '<id>'` antes do handler.
+  - O `TenantInterceptor` faz isso automaticamente; o `PrismaService` delega todas as queries do request para a tx.
+  - Sem o GUC, as políticas retornam zero linhas (negação por padrão), inclusive para acessos diretos via psql com a role da aplicação.
+  - Aplicar políticas em produção: `pnpm db:rls`.
 
 ## 4. Proteções de aplicação (OWASP Top 10)
 
