@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
+
 import { PrismaService } from '../../comum/prisma/prisma.service';
 import { AuditoriaServico } from '../auditoria/auditoria.servico';
+import { DispatcherAutomacoes } from '../automacoes/dispatcher.servico';
 
 import type { UsuarioAutenticado } from '../../comum/decoradores/usuario-atual.decorador';
 import type {
@@ -11,12 +13,12 @@ import type {
 } from '@contabilpro/contracts';
 import type { Prisma } from '@contabilpro/database';
 
-
 @Injectable()
 export class TarefasServico {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditoria: AuditoriaServico,
+    private readonly dispatcher: DispatcherAutomacoes,
   ) {}
 
   async listar(escritorioId: string, filtros: BuscarTarefas) {
@@ -128,25 +130,26 @@ export class TarefasServico {
       entidade: 'Tarefa',
       entidadeId: tarefa.id,
     });
+    await this.dispatcher.disparar({
+      tipo: 'TAREFA_CRIADA',
+      escritorioId: usuario.escritorioId,
+      payload: { tarefa: serializarTarefa(tarefa) },
+    });
     return tarefa;
   }
 
-  async atualizar(
-    usuario: UsuarioAutenticado,
-    id: string,
-    dados: AtualizarTarefaEntrada,
-  ) {
+  async atualizar(usuario: UsuarioAutenticado, id: string, dados: AtualizarTarefaEntrada) {
     const existente = await this.prisma.tarefa.findFirst({
       where: { id, escritorioId: usuario.escritorioId },
     });
     if (!existente) throw new NotFoundException('Tarefa não encontrada');
 
-    const concluidaEm =
-      dados.status === 'CONCLUIDA' && existente.status !== 'CONCLUIDA'
-        ? new Date()
-        : dados.status && dados.status !== 'CONCLUIDA'
-          ? null
-          : undefined;
+    const concluiAgora = dados.status === 'CONCLUIDA' && existente.status !== 'CONCLUIDA';
+    const concluidaEm = concluiAgora
+      ? new Date()
+      : dados.status && dados.status !== 'CONCLUIDA'
+        ? null
+        : undefined;
 
     const tarefa = await this.prisma.tarefa.update({
       where: { id },
@@ -163,6 +166,36 @@ export class TarefasServico {
         diff: { de: existente.status, para: dados.status },
       });
     }
+
+    if (concluiAgora) {
+      await this.dispatcher.disparar({
+        tipo: 'TAREFA_CONCLUIDA',
+        escritorioId: usuario.escritorioId,
+        payload: { tarefa: serializarTarefa(tarefa) },
+      });
+    }
     return tarefa;
   }
+}
+
+function serializarTarefa(t: {
+  id: string;
+  titulo: string;
+  descricao: string | null;
+  status: string;
+  prioridade: string;
+  dataVencimento: Date;
+  responsavelId: string | null;
+  empresaId: string | null;
+}) {
+  return {
+    id: t.id,
+    titulo: t.titulo,
+    descricao: t.descricao,
+    status: t.status,
+    prioridade: t.prioridade,
+    dataVencimento: t.dataVencimento.toISOString(),
+    responsavelId: t.responsavelId,
+    empresaId: t.empresaId,
+  };
 }

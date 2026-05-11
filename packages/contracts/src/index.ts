@@ -6,3 +6,4 @@ export * from './tarefas';
 export * from './atendimento';
 export * from './relatorios';
 export * from './integracoes';
+export * from './automacoes';

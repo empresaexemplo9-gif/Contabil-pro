@@ -10,7 +10,7 @@ import { enviarAssinatura } from './jobs/enviar-assinatura.job.js';
 import { processarEmail } from './jobs/enviar-email.job.js';
 import { processarNotificacao } from './jobs/enviar-notificacao.job.js';
 import { processarWhatsapp } from './jobs/enviar-whatsapp.job.js';
-import { executarAutomacao } from './jobs/executar-automacao.job.js';
+import { criarExecutarAutomacao } from './jobs/executar-automacao.job.js';
 import { gerarTarefasAutomaticas } from './jobs/gerar-tarefas-automaticas.job.js';
 import { criarLembrarObrigacao } from './jobs/lembrar-obrigacao.job.js';
 import { processarDocumento } from './jobs/processar-documento.job.js';
@@ -22,11 +22,18 @@ const opcoesBase: WorkerOptions = {
   concurrency: 5,
 };
 
-// Filas de enfileiramento que o job de lembretes precisa para fan-out.
+// Filas de enfileiramento para fan-out de jobs que produzem outros jobs
+// (lembretes, motor de automações, etc).
 const filaNotificacoes = new Queue(NOMES_FILAS.notificacoes, { connection: conexao });
 const filaEmail = new Queue(NOMES_FILAS.email, { connection: conexao });
+const filaWhatsapp = new Queue(NOMES_FILAS.whatsapp, { connection: conexao });
 
 const lembrarObrigacao = criarLembrarObrigacao({ filaNotificacoes, filaEmail });
+const executarAutomacao = criarExecutarAutomacao({
+  filaNotificacoes,
+  filaEmail,
+  filaWhatsapp,
+});
 
 const workers: Worker[] = [
   new Worker(NOMES_FILAS.email, processarEmail, opcoesBase),
@@ -56,6 +63,7 @@ async function desligar(): Promise<void> {
   await Promise.all(workers.map((w) => w.close()));
   await filaNotificacoes.close();
   await filaEmail.close();
+  await filaWhatsapp.close();
   await conexao.quit();
   process.exit(0);
 }
