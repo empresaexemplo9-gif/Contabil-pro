@@ -1,10 +1,8 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
-  content: [
-    './src/**/*.{ts,tsx}',
-    '../../packages/ui/src/**/*.{ts,tsx}',
-  ],
+  darkMode: 'class',
+  content: ['./src/**/*.{ts,tsx}', '../../packages/ui/src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -29,9 +27,37 @@ const config: Config = {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
+        },
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))',
+        },
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        warning: {
+          DEFAULT: 'hsl(var(--warning))',
+          foreground: 'hsl(var(--accent-foreground))',
+        },
+      },
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
         sans: ['system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+      },
+      boxShadow: {
+        'card-soft': '0 1px 2px hsl(var(--foreground) / 0.04), 0 1px 3px hsl(var(--foreground) / 0.06)',
       },
     },
   },

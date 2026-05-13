@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import { ProvedorTema } from '@/components/provedor-tema';
 import { ProvedorReactQuery } from '@/lib/provedor-react-query';
 import './globals.css';
 
@@ -10,9 +11,11 @@ export const metadata: Metadata = {
 
 export default function LayoutRaiz({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
-        <ProvedorReactQuery>{children}</ProvedorReactQuery>
+        <ProvedorTema>
+          <ProvedorReactQuery>{children}</ProvedorReactQuery>
+        </ProvedorTema>
       </body>
     </html>
   );
