@@ -189,12 +189,15 @@ Trocável para AWS (ECS+RDS+ElastiCache+S3) ou Vercel+Railway sem refactor — a
 
 ## 9. Próximos passos
 
-- [ ] Implementar refresh token rotation com reuse-detection.
-- [ ] Ativar RLS no Postgres em produção.
-- [ ] Adapter ZapSign + webhooks.
-- [ ] Integração WhatsApp Cloud API (envio + recebimento).
-- [ ] Engine de automações (motor passo-a-passo).
-- [ ] Dashboard com gráficos (recharts).
+- [x] Implementar refresh token rotation com reuse-detection.
+- [x] Ativar RLS no Postgres em produção.
+- [x] Adapter ZapSign + webhooks.
+- [x] Integração WhatsApp Cloud API (envio + recebimento).
+- [x] Engine de automações (motor passo-a-passo).
+- [x] Dashboard com gráficos (recharts).
+- [x] Página de Relatórios com filtros e exportação CSV.
+- [x] Console de Configurações (escritório, equipe, integrações, auditoria).
+- [x] Portal do Cliente (documentos, obrigações, assinaturas, mensagens).
 - [ ] OCR de documentos (AWS Textract ou Tesseract).
 - [ ] Testes E2E Playwright dos fluxos críticos.
 - [ ] Tracing OpenTelemetry → Sentry.

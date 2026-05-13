@@ -7,18 +7,18 @@ export default function PaginaInicial() {
       <p className="text-lg text-muted-foreground">
         Plataforma de gestão contábil digital — esqueleto inicial.
       </p>
-      <div className="flex gap-3">
+      <div className="flex flex-wrap justify-center gap-3">
         <Link
           href="/login"
           className="rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
         >
-          Entrar
+          Entrar como escritório
         </Link>
         <Link
-          href="/painel"
+          href="/portal-cliente/login"
           className="rounded-md border px-4 py-2 hover:bg-accent hover:text-accent-foreground"
         >
-          Ir ao painel
+          Portal do cliente
         </Link>
       </div>
     </main>
