@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { BotaoGoogle } from '@/components/botao-google';
 import { clienteApi } from '@/lib/cliente-api';
 import { usarLojaAuth } from '@/lib/loja-auth';
 import type { LoginSaida } from '@contabilpro/contracts';
@@ -46,6 +47,15 @@ export default function PaginaLoginCliente() {
             Acesse documentos, obrigações e fale com seu escritório.
           </p>
         </div>
+
+        <BotaoGoogle audiencia="portal-cliente" />
+
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="h-px flex-1 bg-border" />
+          ou
+          <div className="h-px flex-1 bg-border" />
+        </div>
+
         <label className="block text-sm">
           E-mail
           <input

@@ -35,6 +35,10 @@ const envSchema = z.object({
   ASSINATURA_PROVEDOR: z.enum(['zapsign', 'clicksign', 'd4sign']).default('zapsign'),
   ZAPSIGN_API_TOKEN: z.string().optional(),
 
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_REDIRECT_URI: z.string().url().optional(),
+
   SENTRY_DSN: z.string().optional(),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 });

@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { BotaoGoogle } from '@/components/botao-google';
 import { clienteApi } from '@/lib/cliente-api';
 import { usarLojaAuth } from '@/lib/loja-auth';
 import { Botao } from '@contabilpro/ui';
@@ -28,7 +29,7 @@ export default function PaginaLogin() {
       }
       definirTokens(dados.tokenAcesso, dados.tokenRefresh);
       roteador.push('/painel');
-    } catch (e) {
+    } catch {
       setErro('Credenciais inválidas');
     } finally {
       setCarregando(false);
@@ -37,36 +38,61 @@ export default function PaginaLogin() {
 
   return (
     <main className="flex min-h-screen items-center justify-center p-6">
-      <form
-        onSubmit={aoEnviar}
-        className="w-full max-w-sm space-y-4 rounded-lg border bg-card p-6 shadow-sm"
-      >
-        <h1 className="text-2xl font-semibold">Entrar no ContábilPro</h1>
-        <label className="block text-sm">
-          E-mail
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-md border bg-background px-3 py-2"
-            required
-          />
-        </label>
-        <label className="block text-sm">
-          Senha
-          <input
-            type="password"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            className="mt-1 w-full rounded-md border bg-background px-3 py-2"
-            required
-          />
-        </label>
-        {erro && <p className="text-sm text-destructive">{erro}</p>}
-        <Botao type="submit" disabled={carregando} className="w-full">
-          {carregando ? 'Entrando...' : 'Entrar'}
-        </Botao>
-      </form>
+      <div className="w-full max-w-sm space-y-4 rounded-lg border bg-card p-6 shadow-card-soft">
+        <div>
+          <h1 className="text-2xl font-semibold">
+            Contábil<span className="text-primary">Pro</span>
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">Acesso do escritório.</p>
+        </div>
+
+        <BotaoGoogle audiencia="escritorio" />
+
+        <Separador />
+
+        <form onSubmit={aoEnviar} className="space-y-3">
+          <label className="block text-sm">
+            E-mail
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
+              required
+              autoComplete="username"
+            />
+          </label>
+          <label className="block text-sm">
+            Senha
+            <input
+              type="password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
+              required
+              autoComplete="current-password"
+            />
+          </label>
+          {erro && (
+            <p className="rounded-md bg-destructive/10 px-2 py-1 text-sm text-destructive">
+              {erro}
+            </p>
+          )}
+          <Botao type="submit" disabled={carregando} className="w-full">
+            {carregando ? 'Entrando…' : 'Entrar'}
+          </Botao>
+        </form>
+      </div>
     </main>
+  );
+}
+
+function Separador() {
+  return (
+    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <div className="h-px flex-1 bg-border" />
+      ou
+      <div className="h-px flex-1 bg-border" />
+    </div>
   );
 }
