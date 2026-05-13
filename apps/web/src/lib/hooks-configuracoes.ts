@@ -1,0 +1,148 @@
+'use client';
+
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { clienteApi } from './cliente-api';
+
+export interface EscritorioAtual {
+  id: string;
+  slug: string;
+  razaoSocial: string;
+  nomeFantasia: string | null;
+  cnpj: string | null;
+  plano: string;
+  status: string;
+  configuracoes: Record<string, unknown>;
+  criadoEm: string;
+}
+
+export interface MembroEquipe {
+  id: string;
+  papel: string;
+  permissoes: string[];
+  empresaId: string | null;
+  criadoEm: string;
+  usuario: {
+    id: string;
+    email: string;
+    nome: string;
+    status: string;
+  };
+}
+
+export interface IntegracaoResumo {
+  id: string;
+  provedor: string;
+  nome: string;
+  status: 'ATIVA' | 'INATIVA' | 'ERRO';
+  ultimoErro: string | null;
+  criadoEm: string;
+}
+
+export interface RegistroLogAuditoria {
+  id: string;
+  acao: string;
+  entidade: string;
+  entidadeId: string | null;
+  diff: unknown;
+  ip: string | null;
+  userAgent: string | null;
+  criadoEm: string;
+  ator: { id: string; nome: string; email: string } | null;
+}
+
+export interface RespostaAuditoria {
+  itens: RegistroLogAuditoria[];
+  proximoCursor: string | null;
+}
+
+export interface PapeisPermissoes {
+  papeis: string[];
+  permissoes: string[];
+}
+
+export function useEscritorioAtual() {
+  return useQuery({
+    queryKey: ['escritorio', 'atual'],
+    queryFn: () => clienteApi.get<EscritorioAtual>('/escritorios/atual'),
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useEquipe() {
+  return useQuery({
+    queryKey: ['equipe'],
+    queryFn: () => clienteApi.get<MembroEquipe[]>('/usuarios'),
+  });
+}
+
+export function useIntegracoes() {
+  return useQuery({
+    queryKey: ['integracoes'],
+    queryFn: () => clienteApi.get<IntegracaoResumo[]>('/integracoes'),
+  });
+}
+
+export function useCriarIntegracao() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (corpo: Record<string, unknown>) =>
+      clienteApi.post<{ id: string; status: string }>('/integracoes', corpo),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['integracoes'] }),
+  });
+}
+
+export function useDesativarIntegracao() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      clienteApi.post<{ ok: boolean }>(`/integracoes/${id}/desativar`, {}),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['integracoes'] }),
+  });
+}
+
+export function useRemoverIntegracao() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => clienteApi.delete<{ ok: boolean }>(`/integracoes/${id}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['integracoes'] }),
+  });
+}
+
+export function useAuditoria(filtros: {
+  entidade?: string;
+  acao?: string;
+  cursor?: string;
+}) {
+  const params = new URLSearchParams();
+  if (filtros.entidade) params.set('entidade', filtros.entidade);
+  if (filtros.acao) params.set('acao', filtros.acao);
+  if (filtros.cursor) params.set('cursor', filtros.cursor);
+  const qs = params.toString();
+  return useQuery({
+    queryKey: ['auditoria', filtros],
+    queryFn: () => clienteApi.get<RespostaAuditoria>(`/auditoria${qs ? `?${qs}` : ''}`),
+  });
+}
+
+export function useAcoesAuditoria() {
+  return useQuery({
+    queryKey: ['auditoria', 'acoes'],
+    queryFn: () => clienteApi.get<string[]>('/auditoria/acoes'),
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function usePapeisPermissoes() {
+  return useQuery({
+    queryKey: ['rbac'],
+    queryFn: async () => {
+      const [papeis, permissoes] = await Promise.all([
+        clienteApi.get<string[]>('/rbac/papeis'),
+        clienteApi.get<string[]>('/rbac/permissoes'),
+      ]);
+      return { papeis, permissoes } satisfies PapeisPermissoes;
+    },
+    staleTime: 10 * 60_000,
+  });
+}

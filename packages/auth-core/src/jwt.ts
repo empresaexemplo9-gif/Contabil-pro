@@ -7,6 +7,7 @@ export interface PayloadAcesso {
   escritorioId: string;
   papel: string;
   permissoes?: string[];
+  empresaId?: string;
 }
 
 let chavePrivada: KeyLike | null = null;

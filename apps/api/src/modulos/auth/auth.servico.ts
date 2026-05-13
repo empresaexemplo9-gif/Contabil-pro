@@ -273,7 +273,12 @@ export class AuthServico {
 
   private emitirAcesso(
     usuarioId: string,
-    vinculo: { escritorioId: string; papel: string; permissoes: string[] },
+    vinculo: {
+      escritorioId: string;
+      papel: string;
+      permissoes: string[];
+      empresaId?: string | null;
+    },
   ): Promise<string> {
     const env = configurarEnv();
     return emitirTokenAcesso(
@@ -282,6 +287,7 @@ export class AuthServico {
         escritorioId: vinculo.escritorioId,
         papel: vinculo.papel,
         permissoes: vinculo.permissoes,
+        empresaId: vinculo.empresaId ?? undefined,
       },
       env.JWT_PRIVATE_KEY,
       TTL_ACESSO_SEGUNDOS,

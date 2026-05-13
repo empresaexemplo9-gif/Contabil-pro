@@ -21,6 +21,7 @@ import { FaturamentoModule } from './modulos/faturamento/faturamento.modulo';
 import { IntegracoesModule } from './modulos/integracoes/integracoes.modulo';
 import { NotificacoesModule } from './modulos/notificacoes/notificacoes.modulo';
 import { ObrigacoesModule } from './modulos/obrigacoes/obrigacoes.modulo';
+import { PortalClienteModule } from './modulos/portal-cliente/portal-cliente.modulo';
 import { RbacModule } from './modulos/rbac/rbac.modulo';
 import { RelatoriosModule } from './modulos/relatorios/relatorios.modulo';
 import { TarefasModule } from './modulos/tarefas/tarefas.modulo';
@@ -60,6 +61,7 @@ import { UsuariosModule } from './modulos/usuarios/usuarios.modulo';
     IntegracoesModule,
     AuditoriaModule,
     FaturamentoModule,
+    PortalClienteModule,
   ],
   controllers: [SaudeController],
   providers: [

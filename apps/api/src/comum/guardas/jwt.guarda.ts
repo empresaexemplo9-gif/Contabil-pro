@@ -31,6 +31,7 @@ export class GuardaJwt implements CanActivate {
         escritorioId: payload.escritorioId,
         papel: payload.papel,
         permissoes: payload.permissoes ?? [],
+        empresaId: payload.empresaId,
       };
       return true;
     } catch {

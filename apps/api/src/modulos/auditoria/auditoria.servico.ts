@@ -14,6 +14,17 @@ export interface RegistroAuditoria {
   userAgent?: string;
 }
 
+export interface FiltrosConsultaAuditoria {
+  entidade?: string;
+  entidadeId?: string;
+  acao?: string;
+  atorId?: string;
+  desde?: Date;
+  ate?: Date;
+  limite?: number;
+  cursor?: string;
+}
+
 @Injectable()
 export class AuditoriaServico {
   constructor(private readonly prisma: PrismaService) {}
@@ -33,15 +44,49 @@ export class AuditoriaServico {
     });
   }
 
-  consultar(escritorioId: string, filtros: { entidade?: string; entidadeId?: string }) {
-    return this.prisma.logAuditoria.findMany({
-      where: {
-        escritorioId,
-        entidade: filtros.entidade ?? undefined,
-        entidadeId: filtros.entidadeId ?? undefined,
-      },
+  async consultar(escritorioId: string, filtros: FiltrosConsultaAuditoria = {}) {
+    const limite = Math.min(Math.max(filtros.limite ?? 50, 1), 200);
+    const where: Prisma.LogAuditoriaWhereInput = {
+      escritorioId,
+      entidade: filtros.entidade,
+      entidadeId: filtros.entidadeId,
+      acao: filtros.acao,
+      atorId: filtros.atorId,
+    };
+    if (filtros.desde || filtros.ate) {
+      where.criadoEm = {
+        gte: filtros.desde,
+        lte: filtros.ate,
+      };
+    }
+
+    const itens = await this.prisma.logAuditoria.findMany({
+      where,
       orderBy: { criadoEm: 'desc' },
-      take: 200,
+      take: limite + 1,
+      cursor: filtros.cursor ? { id: filtros.cursor } : undefined,
+      skip: filtros.cursor ? 1 : 0,
+      include: {
+        ator: { select: { id: true, nome: true, email: true } },
+      },
     });
+
+    const proximoCursor = itens.length > limite ? (itens[limite]?.id ?? null) : null;
+    return {
+      itens: itens.slice(0, limite),
+      proximoCursor,
+    };
+  }
+
+  acoesDistintas(escritorioId: string) {
+    return this.prisma.logAuditoria
+      .findMany({
+        where: { escritorioId },
+        distinct: ['acao'],
+        select: { acao: true },
+        orderBy: { acao: 'asc' },
+        take: 200,
+      })
+      .then((linhas) => linhas.map((l) => l.acao));
   }
 }

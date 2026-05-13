@@ -5,6 +5,7 @@ export interface UsuarioAutenticado {
   escritorioId: string;
   papel: string;
   permissoes: string[];
+  empresaId?: string;
 }
 
 export const UsuarioAtual = createParamDecorator(

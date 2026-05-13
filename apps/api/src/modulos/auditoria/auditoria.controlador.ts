@@ -24,7 +24,28 @@ export class AuditoriaControlador {
     @UsuarioAtual() usuario: UsuarioAutenticado,
     @Query('entidade') entidade?: string,
     @Query('entidadeId') entidadeId?: string,
+    @Query('acao') acao?: string,
+    @Query('atorId') atorId?: string,
+    @Query('desde') desde?: string,
+    @Query('ate') ate?: string,
+    @Query('cursor') cursor?: string,
+    @Query('limite') limite?: string,
   ) {
-    return this.servico.consultar(usuario.escritorioId, { entidade, entidadeId });
+    return this.servico.consultar(usuario.escritorioId, {
+      entidade,
+      entidadeId,
+      acao,
+      atorId,
+      desde: desde ? new Date(desde) : undefined,
+      ate: ate ? new Date(ate) : undefined,
+      cursor,
+      limite: limite ? Number(limite) : undefined,
+    });
+  }
+
+  @Papeis('PROPRIETARIO', 'ADMIN')
+  @Get('acoes')
+  acoesDistintas(@UsuarioAtual() usuario: UsuarioAutenticado) {
+    return this.servico.acoesDistintas(usuario.escritorioId);
   }
 }
