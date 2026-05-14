@@ -1,0 +1,37 @@
+# Fly.io — ContábilPro Worker (BullMQ)
+#
+# Deploy:
+#   fly deploy --config infra/fly/worker.fly.toml --dockerfile infra/docker/worker.Dockerfile
+#
+# Compartilha o mesmo conjunto de secrets do API (DATABASE_URL, REDIS_URL,
+# S3_*, RESEND_API_KEY, WHATSAPP_*, ZAPSIGN_*). Replicar com:
+#   fly secrets list --app contabilpro-api | awk '/^DIGEST/ {next} {print $1}' | \
+#     while read k; do echo "Copie '$k' manualmente: fly secrets set --app contabilpro-worker $k=..."; done
+#
+# Atenção: worker NÃO expõe porta HTTP (sem [http_service]). Sem healthcheck público.
+
+app = "contabilpro-worker"
+primary_region = "gru"
+
+[build]
+
+[env]
+  NODE_ENV = "production"
+  S3_REGION = "auto"
+  S3_FORCE_PATH_STYLE = "true"
+  LOG_LEVEL = "info"
+  ASSINATURA_PROVEDOR = "zapsign"
+
+# Worker é processo de fila — fica ligado sempre que houver job.
+# auto_stop=stop economiza, mas perde jobs com retry imediato. Mantenha 1 máquina.
+[processes]
+  app = "node dist/main.js"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  cpus = 1
+  processes = ["app"]
+
+[deploy]
+  strategy = "rolling"

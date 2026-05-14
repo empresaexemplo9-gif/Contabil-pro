@@ -1,0 +1,63 @@
+# Fly.io — ContábilPro API (NestJS)
+#
+# Deploy com:
+#   fly deploy --config infra/fly/api.fly.toml --dockerfile infra/docker/api.Dockerfile
+#
+# Antes do primeiro deploy:
+#   fly apps create contabilpro-api --org pessoal
+#   fly secrets set --app contabilpro-api \
+#     DATABASE_URL=...                # Neon connection string (pooler)
+#     REDIS_URL=...                   # Upstash redis://
+#     JWT_PRIVATE_KEY="..."           # gerar com openssl genrsa -out chave.pem 2048
+#     JWT_PUBLIC_KEY="..."            # openssl rsa -in chave.pem -pubout
+#     S3_ENDPOINT=https://<acct>.r2.cloudflarestorage.com
+#     S3_BUCKET=contabilpro
+#     S3_ACCESS_KEY=...
+#     S3_SECRET_KEY=...
+#     RESEND_API_KEY=...
+#     GOOGLE_CLIENT_ID=...
+#     GOOGLE_CLIENT_SECRET=...
+#     GOOGLE_REDIRECT_URI=https://contabilpro-api.fly.dev/api/v1/auth/google/callback
+#     # demais secrets conforme .env.example
+
+app = "contabilpro-api"
+primary_region = "gru"   # São Paulo
+
+[build]
+
+[env]
+  NODE_ENV = "production"
+  API_PORT = "3333"
+  API_URL = "https://contabilpro-api.fly.dev"
+  WEB_URL = "https://contabilpro.fly.dev"
+  CORS_ORIGINS = "https://contabilpro.fly.dev"
+  S3_REGION = "auto"
+  S3_FORCE_PATH_STYLE = "true"
+  LOG_LEVEL = "info"
+  ASSINATURA_PROVEDOR = "zapsign"
+
+[http_service]
+  internal_port = 3333
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0   # 0 para economizar; 1 evita cold start
+  processes = ["app"]
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/saude"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  cpus = 1
+
+[deploy]
+  strategy = "rolling"
+
+# Migrações Prisma rodam fora do Fly (mais seguro). Antes do deploy:
+#   DATABASE_URL="postgres://...neon..." pnpm --filter @contabilpro/database db:migrar deploy

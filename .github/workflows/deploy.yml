@@ -1,0 +1,118 @@
+name: Deploy (Fly.io)
+
+# Deploya as três apps (api, web, worker) no Fly.io.
+#
+# Disparo:
+#   - Push em main → deploy automático (após CI passar)
+#   - workflow_dispatch → deploy manual de um alvo específico
+#
+# Secrets necessários no repositório (Settings → Secrets and variables → Actions):
+#   FLY_API_TOKEN          — token obtido com `fly tokens create deploy`
+#   NEON_DATABASE_URL      — usado pela job de migrate (formato: postgres://...)
+#
+# As demais variáveis (REDIS_URL, JWT_*, S3_*, etc.) são `fly secrets` —
+# configuradas direto no Fly e não trafegam pelo GitHub Actions.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      alvo:
+        description: 'Qual app deployar'
+        required: true
+        default: 'todas'
+        type: choice
+        options: [todas, api, web, worker]
+      pular_migracao:
+        description: 'Pular `prisma migrate deploy`'
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: 20.10.0
+  PNPM_VERSION: 9.12.0
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+jobs:
+  migrar:
+    name: Aplicar migrations Prisma
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && inputs.pular_migracao != true)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Aplicar migrations no Neon
+        env:
+          DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: pnpm --filter @contabilpro/database exec prisma migrate deploy
+
+  api:
+    name: Deploy API
+    needs: migrar
+    if: >
+      always() && !cancelled() &&
+      (needs.migrar.result == 'success' || needs.migrar.result == 'skipped') &&
+      (github.event_name == 'push' ||
+       inputs.alvo == 'todas' || inputs.alvo == 'api')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: |
+          flyctl deploy \
+            --config infra/fly/api.fly.toml \
+            --dockerfile infra/docker/api.Dockerfile \
+            --remote-only \
+            --wait-timeout 600
+
+  worker:
+    name: Deploy Worker
+    needs: migrar
+    if: >
+      always() && !cancelled() &&
+      (needs.migrar.result == 'success' || needs.migrar.result == 'skipped') &&
+      (github.event_name == 'push' ||
+       inputs.alvo == 'todas' || inputs.alvo == 'worker')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: |
+          flyctl deploy \
+            --config infra/fly/worker.fly.toml \
+            --dockerfile infra/docker/worker.Dockerfile \
+            --remote-only \
+            --wait-timeout 600
+
+  web:
+    name: Deploy Web
+    needs: api
+    if: >
+      always() && !cancelled() &&
+      (needs.api.result == 'success' || needs.api.result == 'skipped') &&
+      (github.event_name == 'push' ||
+       inputs.alvo == 'todas' || inputs.alvo == 'web')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: |
+          flyctl deploy \
+            --config infra/fly/web.fly.toml \
+            --dockerfile infra/docker/web.Dockerfile \
+            --remote-only \
+            --wait-timeout 600
