@@ -124,12 +124,12 @@ function ConteudoSidebar({
           onClick={aoNavegar}
           className="flex items-center gap-2 overflow-hidden"
         >
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground shadow-card-soft">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary text-accent shadow-card-soft ring-1 ring-accent/20">
             <Sparkles className="h-4 w-4" />
           </span>
           {!colapsada && (
-            <span className="truncate text-sm font-semibold tracking-tight">
-              Contábil<span className="text-primary">Pro</span>
+            <span className="truncate font-serif text-sm font-semibold tracking-tight">
+              Contábil<span className="text-accent">Pro</span>
             </span>
           )}
         </Link>

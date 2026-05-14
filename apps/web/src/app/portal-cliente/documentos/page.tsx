@@ -17,7 +17,7 @@ export default function PaginaPortalDocumentos() {
     <div className="space-y-4">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Documentos</h1>
+          <h1 className="font-serif text-3xl font-semibold tracking-tight">Documentos</h1>
           <p className="text-sm text-muted-foreground">
             Arquivos compartilhados pelo seu escritório.
           </p>

@@ -39,7 +39,7 @@ export default function PaginaPortalObrigacoes() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold">Obrigações</h1>
+        <h1 className="font-serif text-3xl font-semibold tracking-tight">Obrigações</h1>
         <p className="text-sm text-muted-foreground">
           Tarefas atribuídas pelo seu escritório com prazos e prioridades.
         </p>

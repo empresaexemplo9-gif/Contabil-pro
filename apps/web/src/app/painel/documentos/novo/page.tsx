@@ -84,7 +84,7 @@ export default function PaginaNovoDocumento() {
           ← Voltar para documentos
         </Link>
       </div>
-      <h1 className="text-2xl font-semibold">Enviar documento</h1>
+      <h1 className="font-serif text-3xl font-semibold tracking-tight">Enviar documento</h1>
 
       <form onSubmit={aoEnviar} className="space-y-4 rounded-lg border bg-card p-6">
         <label

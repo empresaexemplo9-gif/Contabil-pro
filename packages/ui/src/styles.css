@@ -3,74 +3,76 @@
 @tailwind utilities;
 
 /* ============================================================================
- * Paleta ContábilPro: branco · verde · dourado
- *   - primary  → verde (ações principais, links, status positivo)
- *   - accent   → dourado (destaques, badges, highlights)
- *   - background/surface → tons de branco/off-white
- *   - dark mode mantém verde + dourado contra fundo grafite esverdeado
+ * Identidade ContábilPro — inspirada na paleta "DRAP"
+ *   - primary    → navy profundo (marca, ações, links)
+ *   - accent     → dourado quente (destaques, badges, microacentos)
+ *   - secondary  → verde escuro institucional (success, tags positivas)
+ *   - background → cream off-white (luz)
+ *   - foreground → charcoal acinzentado (texto)
+ *   - dark mode  → navy ainda mais profundo + dourado/verde mais quentes
  * ============================================================================ */
 
 @layer base {
   :root {
     /* Superfícies */
-    --background: 60 20% 99%;          /* off-white levemente quente */
-    --foreground: 150 25% 12%;         /* verde escuríssimo (texto) */
+    --background: 45 38% 95%;          /* cream #F4F1E8 levemente mais claro */
+    --foreground: 240 12% 18%;         /* charcoal #2A2A30 (mais legível que o cinza puro) */
     --card: 0 0% 100%;
-    --card-foreground: 150 25% 12%;
+    --card-foreground: 240 12% 18%;
     --popover: 0 0% 100%;
-    --popover-foreground: 150 25% 12%;
-    --muted: 145 25% 96%;              /* fundo neutro esverdeado clarissímo */
-    --muted-foreground: 150 12% 40%;
+    --popover-foreground: 240 12% 18%;
+    --muted: 45 25% 92%;               /* cream um tom mais frio */
+    --muted-foreground: 240 6% 38%;
 
     /* Marca */
-    --primary: 152 62% 32%;            /* verde escuro (institucional) */
-    --primary-foreground: 60 30% 98%;
-    --secondary: 145 35% 92%;          /* verde-água bem claro */
-    --secondary-foreground: 152 62% 22%;
-    --accent: 42 78% 52%;              /* dourado vibrante */
-    --accent-foreground: 40 60% 12%;
+    --primary: 222 75% 15%;            /* navy #0A1F44 */
+    --primary-foreground: 45 38% 95%;
+    --secondary: 139 36% 28%;          /* verde escuro #2D5F3F */
+    --secondary-foreground: 45 38% 95%;
+    --accent: 38 45% 42%;              /* dourado #9B7B3D */
+    --accent-foreground: 45 38% 95%;
 
     /* Status */
-    --destructive: 0 70% 48%;
+    --destructive: 0 65% 45%;
     --destructive-foreground: 0 0% 100%;
-    --success: 152 62% 32%;
-    --warning: 42 78% 52%;
+    --success: 139 36% 28%;            /* mesmo verde institucional */
+    --warning: 38 45% 42%;             /* dourado faz papel de "atenção" */
 
     /* Bordas e foco */
-    --border: 145 18% 88%;
-    --input: 145 18% 88%;
-    --ring: 152 62% 32%;
+    --border: 45 20% 85%;
+    --input: 45 20% 85%;
+    --ring: 222 75% 25%;
 
     --radius: 0.5rem;
   }
 
   .dark {
-    /* Superfícies escuras com leve tinta esverdeada (não preto puro) */
-    --background: 156 20% 8%;
-    --foreground: 60 25% 96%;
-    --card: 156 22% 11%;
-    --card-foreground: 60 25% 96%;
-    --popover: 156 22% 11%;
-    --popover-foreground: 60 25% 96%;
-    --muted: 156 18% 16%;
-    --muted-foreground: 145 12% 65%;
+    /* Superfícies escuras: navy ainda mais profundo, sem ser preto */
+    --background: 222 50% 7%;
+    --foreground: 45 35% 94%;
+    --card: 222 42% 10%;
+    --card-foreground: 45 35% 94%;
+    --popover: 222 42% 10%;
+    --popover-foreground: 45 35% 94%;
+    --muted: 222 28% 16%;
+    --muted-foreground: 45 15% 72%;
 
-    /* Marca no escuro: verde mais claro, dourado mais quente */
-    --primary: 150 55% 50%;
-    --primary-foreground: 156 30% 8%;
-    --secondary: 156 22% 18%;
-    --secondary-foreground: 60 25% 96%;
-    --accent: 42 80% 58%;
-    --accent-foreground: 40 60% 10%;
+    /* Marca no escuro: primary clareia para contraste; dourado mais quente */
+    --primary: 38 60% 60%;             /* dourado vira marca no escuro — pop natural */
+    --primary-foreground: 222 75% 10%;
+    --secondary: 139 36% 42%;
+    --secondary-foreground: 45 38% 95%;
+    --accent: 222 60% 40%;             /* navy clareado vira microacento no escuro */
+    --accent-foreground: 45 38% 95%;
 
-    --destructive: 0 70% 55%;
+    --destructive: 0 65% 55%;
     --destructive-foreground: 0 0% 100%;
-    --success: 150 55% 50%;
-    --warning: 42 80% 58%;
+    --success: 139 36% 50%;
+    --warning: 38 60% 55%;
 
-    --border: 156 18% 20%;
-    --input: 156 18% 20%;
-    --ring: 150 55% 50%;
+    --border: 222 28% 22%;
+    --input: 222 28% 22%;
+    --ring: 38 60% 60%;
   }
 
   * {

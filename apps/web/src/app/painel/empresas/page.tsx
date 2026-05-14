@@ -38,7 +38,7 @@ export default function PaginaEmpresas() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Empresas</h1>
+        <h1 className="font-serif text-3xl font-semibold tracking-tight">Empresas</h1>
         <Link
           href="/painel/empresas/nova"
           className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90"

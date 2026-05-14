@@ -15,7 +15,7 @@ export default function PaginaPortalInicio() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold">{data.empresa.razaoSocial}</h1>
+        <h1 className="font-serif text-3xl font-semibold tracking-tight">{data.empresa.razaoSocial}</h1>
         <p className="text-sm text-muted-foreground">
           CNPJ {formatarCnpj(data.empresa.cnpj)} · {data.empresa.regime.replace('_', ' ')}
         </p>

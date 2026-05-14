@@ -54,7 +54,8 @@ const config: Config = {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['var(--fonte-sans)', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+        serif: ['var(--fonte-serif)', 'Georgia', 'Cambria', 'serif'],
       },
       boxShadow: {
         'card-soft': '0 1px 2px hsl(var(--foreground) / 0.04), 0 1px 3px hsl(var(--foreground) / 0.06)',

@@ -53,7 +53,7 @@ export default function PaginaTarefas() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Tarefas</h1>
+      <h1 className="font-serif text-3xl font-semibold tracking-tight">Tarefas</h1>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <CartaoMetrica titulo="Pendentes" valor={metricas.data?.pendentes} />

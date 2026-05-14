@@ -39,10 +39,24 @@ pnpm --filter @contabilpro/web build
 2. Se mudou schema Prisma: rode `pnpm db:gerar` e comite as migrations.
 3. Use Conventional Commits (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:`).
 
+## Acesso e onboarding
+
+- **Não existe cadastro público.** Não exponha endpoints `POST /auth/register`
+  ou similares — toda criação de usuário passa por `POST /usuarios`, restrito
+  a `PROPRIETARIO`/`ADMIN` via `@Papeis`.
+- Convites geram senha temporária Argon2id, mostrada **uma única vez** ao
+  admin convidante. O convidado troca no primeiro acesso via "Esqueci minha
+  senha".
+- Para CLIENTE, o vínculo exige `empresaId` — o portal usa esse campo para
+  isolar dados.
+- Login com Google só funciona para contas **já vinculadas** a um escritório
+  (não há auto-cadastro pelo Google).
+
 ## Não faça
 
 - ❌ `console.log` no código de produção (use o logger).
 - ❌ Hardcode de strings de UI (use i18n).
 - ❌ Queries Prisma sem filtro de `escritorioId`.
 - ❌ Commitar `.env` ou qualquer segredo.
+- ❌ Endpoint público de registro de usuário.
 - ❌ `--no-verify`, `--force-push` ou amend de commits já enviados.

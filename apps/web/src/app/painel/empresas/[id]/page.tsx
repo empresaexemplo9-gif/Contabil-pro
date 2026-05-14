@@ -37,7 +37,7 @@ export default function PaginaEmpresa() {
 
       <header className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">{empresa.razaoSocial}</h1>
+          <h1 className="font-serif text-3xl font-semibold tracking-tight">{empresa.razaoSocial}</h1>
           {empresa.nomeFantasia && (
             <p className="text-muted-foreground">{empresa.nomeFantasia}</p>
           )}

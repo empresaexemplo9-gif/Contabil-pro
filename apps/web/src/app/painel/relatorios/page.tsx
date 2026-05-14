@@ -119,7 +119,7 @@ export default function PaginaRelatorios() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Relatórios</h1>
+          <h1 className="font-serif text-3xl font-semibold tracking-tight">Relatórios</h1>
           <p className="text-sm text-muted-foreground">
             Análise detalhada de produtividade, obrigações e atendimento.
           </p>

@@ -30,7 +30,7 @@ export default function PaginaPortalAssinaturas() {
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-semibold">Assinaturas pendentes</h1>
+        <h1 className="font-serif text-3xl font-semibold tracking-tight">Assinaturas pendentes</h1>
         <p className="text-sm text-muted-foreground">
           Documentos da sua empresa aguardando assinatura.
         </p>
