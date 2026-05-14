@@ -1,6 +1,10 @@
 # Deploy — ContábilPro
 
-Stack alvo escolhido em `ARQUITETURA.md` §8:
+> **Tem duas trilhas neste guia:**
+> - **Trilha A — Sem cartão** (Render + Vercel + Neon + Upstash). Custo R$ 0; cold start de ~30s. Veja a seção [Trilha sem cartão](#trilha-sem-cartão-render--vercel-windows-powershell).
+> - **Trilha B — Stack original** (Fly.io para tudo). Exige cartão; ~US$ 0–3/mês. Continua disponível abaixo.
+
+## Stack original (Fly.io) — `ARQUITETURA.md` §8
 
 | Camada | Provedor | URL final (sugestão) |
 |---|---|---|
@@ -229,3 +233,156 @@ fly releases rollback <versao> --app contabilpro-api
 
 **Estimativa MVP rodando vazio:** ~US$ 0–3/mês.
 **Estimativa 5–10 escritórios reais:** ~US$ 15–25/mês.
+
+---
+
+# Trilha sem cartão (Render + Vercel, Windows PowerShell)
+
+Para quem **não quer cadastrar cartão de crédito agora**. Custo: R$ 0. Limitação principal: a API dorme após 15 min ociosa (cold start de ~30s no primeiro acesso depois de dormir).
+
+| Camada | Provedor | URL final |
+|---|---|---|
+| Web (Next.js) | **Vercel** Hobby | `https://contabilpro.vercel.app` |
+| API (NestJS) | **Render** Free | `https://contabilpro-api.onrender.com` |
+| Worker (BullMQ) | **Render** Free Worker | sem URL pública |
+| Postgres | **Neon** Free | sem cartão |
+| Redis | **Upstash** Free | sem cartão |
+| E-mail | **Resend** Free | sem cartão (3 k/mês) |
+| Storage | _(adiado)_ | habilitar depois |
+
+## 1. Criar contas (15 min, só navegador)
+
+Abra os links abaixo, crie cada conta usando o **mesmo e-mail** quando possível (mais fácil depois):
+
+| Passo | Link | O que copiar |
+|---|---|---|
+| 1.1 | https://github.com/signup | (já deve ter — usado para login no Render/Vercel) |
+| 1.2 | https://console.neon.tech | "Connection string (pooled)" — começa com `postgres://` |
+| 1.3 | https://console.upstash.com | "Redis URL" — começa com `rediss://` |
+| 1.4 | https://resend.com | API key — começa com `re_` |
+| 1.5 | https://dashboard.render.com → New → Blueprint | _não copia nada agora, só cria conta_ |
+| 1.6 | https://vercel.com/signup | _idem_ |
+
+No **Neon**, depois de criar o projeto, abra "SQL Editor" e cole:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS citext;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+```
+
+Salve as 4 strings copiadas (Neon, Upstash, Resend, mais a Vercel URL que virá depois) num bloco de notas.
+
+## 2. Preparar ambiente Windows (10 min)
+
+Abra **PowerShell** (Iniciar → digite "powershell"):
+
+```powershell
+# Instalar git, Node 20 e pnpm
+winget install --id Git.Git -e
+winget install --id OpenJS.NodeJS.LTS -e
+# Após instalar, FECHE e reabra o PowerShell
+node --version    # esperado: v20.x
+npm install -g pnpm@9.12.0
+pnpm --version    # esperado: 9.12.0
+
+# Clonar o projeto
+cd $HOME
+git clone https://github.com/empresaexemplo9-gif/Contabil-pro.git
+cd Contabil-pro
+git checkout claude/continue-contabilpro-uL3Li
+pnpm install
+```
+
+## 3. Gerar chaves JWT (1 min)
+
+Windows não tem `openssl` por padrão. Use o que vem com o git que você instalou:
+
+```powershell
+& "C:\Program Files\Git\usr\bin\openssl.exe" genrsa -out chave-privada.pem 2048
+& "C:\Program Files\Git\usr\bin\openssl.exe" rsa -in chave-privada.pem -pubout -out chave-publica.pem
+Get-Content chave-privada.pem | Set-Clipboard   # já copia para a área de transferência
+```
+
+Cole **temporariamente** num bloco de notas e marque como "JWT_PRIVATE_KEY". Repita para a pública:
+
+```powershell
+Get-Content chave-publica.pem | Set-Clipboard
+```
+
+## 4. Aplicar migrations + seed no Neon (3 min)
+
+```powershell
+# Substitua pela connection string da Neon que você copiou:
+$env:DATABASE_URL="postgres://USER:PASS@HOST/DB?sslmode=require"
+pnpm --filter @contabilpro/database exec prisma migrate deploy
+pnpm --filter @contabilpro/database db:semear
+```
+
+Pronto — seu usuário `thiagohccarvalho00@gmail.com` já está cadastrado como ADMIN no banco.
+
+## 5. Deploy da API + Worker no Render (5 min)
+
+1. Faça push do seu fork pro **seu** GitHub (se ainda não fez):
+   ```powershell
+   # No GitHub crie um repositório vazio chamado "contabilpro"
+   # Depois, no PowerShell:
+   git remote set-url origin https://github.com/SEU_USUARIO/contabilpro.git
+   git push -u origin claude/continue-contabilpro-uL3Li:main
+   ```
+
+2. No Render: **Dashboard → New + → Blueprint** → conectar GitHub → selecionar o repo `contabilpro` → branch `main`. O Render lê o `render.yaml` e mostra os 2 serviços: `contabilpro-api` e `contabilpro-worker`.
+
+3. Em **Environment Variables**, o Render pede pra preencher as marcadas como `sync: false`. Cole:
+   - `DATABASE_URL` = string da Neon
+   - `REDIS_URL` = string da Upstash
+   - `JWT_PRIVATE_KEY` = conteúdo do `chave-privada.pem` (incluindo `-----BEGIN/END-----`)
+   - `JWT_PUBLIC_KEY` = conteúdo do `chave-publica.pem`
+   - `RESEND_API_KEY` = `re_...`
+   - `EMAIL_REMETENTE_PADRAO` = `onboarding@resend.dev` (até verificar domínio)
+   - `WEB_URL` e `CORS_ORIGINS` = **deixar em branco por enquanto** (vamos preencher após criar o Vercel)
+   - As demais (S3_*, GOOGLE_*, WHATSAPP_*, ZAPSIGN_*) = deixar em branco
+
+4. Clicar **Apply**. Render constrói e sobe. ~6 min na primeira vez.
+
+5. Quando ficar verde, copie a URL gerada: `https://contabilpro-api.onrender.com` (será essa exatamente se o nome estiver disponível).
+
+## 6. Deploy do Web no Vercel (3 min)
+
+1. https://vercel.com/new → importar `SEU_USUARIO/contabilpro`.
+2. Em **Root Directory** selecionar `apps/web`.
+3. Em **Environment Variables**:
+   - `NEXT_PUBLIC_API_URL` = `https://contabilpro-api.onrender.com`
+   - `NEXT_PUBLIC_AMBIENTE` = `production`
+4. **Deploy**.
+
+A URL final será `https://<seu-projeto>.vercel.app`.
+
+## 7. Conectar Vercel ↔ Render (2 min)
+
+Voltar no Render → `contabilpro-api` → **Environment**:
+- `WEB_URL` = `https://<seu-projeto>.vercel.app`
+- `CORS_ORIGINS` = mesma URL
+
+Render reinicia automaticamente. Após ~1 min, abra:
+
+**`https://<seu-projeto>.vercel.app/login`**
+
+Faça login com `thiagohccarvalho00@gmail.com` / `147532159St@`. Troque a senha em "Configurações → Equipe" (ou via "Esqueci minha senha").
+
+## 8. Ativar uploads de documentos (opcional, mais tarde)
+
+Quando quiser habilitar upload de documentos:
+
+- **Cloudflare R2** (10 GB free, mais barato no overage) — exige cartão
+- **Backblaze B2** (10 GB free) — exige cartão na maioria dos casos
+- **Supabase Storage** (1 GB free, sem cartão) — alternativa enquanto não tiver cartão
+
+Adicione as 4 variáveis (`S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`) no Render. A API reinicia sozinha e os uploads passam a funcionar.
+
+## 9. Limitações do plano free Render
+
+- **Cold start**: serviço dorme após 15 min sem requisições. Primeira chamada depois disso espera ~30 s. Para evitar, use um pinger gratuito (ex.: cron-job.org chamando `/saude` a cada 10 min).
+- **750 h/mês por serviço grátis**: API + Worker rodando 24/7 = 720 h cada → cabe.
+- **CPU/RAM**: 0.1 vCPU / 512 MB. Suficiente para até dezenas de usuários simultâneos.
+- **Banda**: 100 GB/mês de saída — bastante para MVP.

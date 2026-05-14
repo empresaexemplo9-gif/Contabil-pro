@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @contabilpro/database db:gerar && pnpm --filter @contabilpro/web build",
+  "installCommand": "echo 'install ocorre no buildCommand'",
+  "outputDirectory": ".next",
+  "regions": ["gru1"]
+}
