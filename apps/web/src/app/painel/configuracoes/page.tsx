@@ -2,17 +2,19 @@
 
 import { useState } from 'react';
 
-import { AbaEscritorio } from './aba-escritorio';
-import { AbaEquipe } from './aba-equipe';
-import { AbaIntegracoes } from './aba-integracoes';
 import { AbaAuditoria } from './aba-auditoria';
+import { AbaAutomacoes } from './aba-automacoes';
+import { AbaEquipe } from './aba-equipe';
+import { AbaEscritorio } from './aba-escritorio';
+import { AbaIntegracoes } from './aba-integracoes';
 
-type ChaveAba = 'escritorio' | 'equipe' | 'integracoes' | 'auditoria';
+type ChaveAba = 'escritorio' | 'equipe' | 'integracoes' | 'automacoes' | 'auditoria';
 
 const ABAS: Array<{ chave: ChaveAba; titulo: string }> = [
   { chave: 'escritorio', titulo: 'Escritório' },
   { chave: 'equipe', titulo: 'Equipe' },
   { chave: 'integracoes', titulo: 'Integrações' },
+  { chave: 'automacoes', titulo: 'Automações' },
   { chave: 'auditoria', titulo: 'Auditoria' },
 ];
 
@@ -48,6 +50,7 @@ export default function PaginaConfiguracoes() {
         {aba === 'escritorio' && <AbaEscritorio />}
         {aba === 'equipe' && <AbaEquipe />}
         {aba === 'integracoes' && <AbaIntegracoes />}
+        {aba === 'automacoes' && <AbaAutomacoes />}
         {aba === 'auditoria' && <AbaAuditoria />}
       </div>
     </div>

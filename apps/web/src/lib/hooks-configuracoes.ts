@@ -146,3 +146,40 @@ export function usePapeisPermissoes() {
     staleTime: 10 * 60_000,
   });
 }
+
+// --- Automações ---
+
+export interface AutomacaoResumo {
+  id: string;
+  nome: string;
+  descricao: string | null;
+  status: 'ATIVA' | 'PAUSADA' | 'RASCUNHO';
+  gatilho: { tipo?: string } & Record<string, unknown>;
+  passos: unknown[];
+  criadoEm: string;
+}
+
+export function useAutomacoes() {
+  return useQuery({
+    queryKey: ['automacoes'],
+    queryFn: () => clienteApi.get<AutomacaoResumo[]>('/automacoes'),
+  });
+}
+
+export function useAtivarAutomacao() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      clienteApi.post<AutomacaoResumo>(`/automacoes/${id}/ativar`, {}),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['automacoes'] }),
+  });
+}
+
+export function usePausarAutomacao() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      clienteApi.post<AutomacaoResumo>(`/automacoes/${id}/pausar`, {}),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['automacoes'] }),
+  });
+}
