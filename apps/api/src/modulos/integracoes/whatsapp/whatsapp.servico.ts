@@ -7,6 +7,7 @@ import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 
 import { PrismaService } from '../../../comum/prisma/prisma.service';
 import { AtendimentoGateway } from '../../atendimento/atendimento.gateway';
+import { DispatcherAutomacoes } from '../../automacoes/dispatcher.servico';
 import { IntegracoesServico } from '../integracoes.servico';
 
 
@@ -21,6 +22,7 @@ export class WhatsappServico {
     private readonly integracoes: IntegracoesServico,
     @Inject(forwardRef(() => AtendimentoGateway))
     private readonly gateway: AtendimentoGateway,
+    private readonly dispatcher: DispatcherAutomacoes,
   ) {}
 
   /**
@@ -110,6 +112,25 @@ export class WhatsappServico {
 
     this.gateway.broadcastMensagemNova(escritorioId, conversa.id, nova);
     this.gateway.broadcastConversaAtualizada(escritorioId, conversa.id);
+
+    await this.dispatcher.disparar({
+      tipo: 'MENSAGEM_RECEBIDA',
+      escritorioId,
+      payload: {
+        mensagem: {
+          id: nova.id,
+          conversaId: conversa.id,
+          corpo: nova.corpo,
+          externalId: nova.externalId,
+          canal: 'WHATSAPP',
+        },
+        remetente: {
+          telefone: mensagem.remetenteTelefone,
+          nome: mensagem.remetenteNome ?? null,
+        },
+        empresaId,
+      },
+    });
   }
 
   private async acharOuCriarConversa(

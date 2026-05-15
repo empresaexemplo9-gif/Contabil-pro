@@ -3,6 +3,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 
 import { PrismaService } from '../../comum/prisma/prisma.service';
 import { AuditoriaServico } from '../auditoria/auditoria.servico';
+import { DispatcherAutomacoes } from '../automacoes/dispatcher.servico';
 
 import type {
   BuscarEmpresas,
@@ -17,6 +18,7 @@ export class EmpresasServico {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditoria: AuditoriaServico,
+    private readonly dispatcher: DispatcherAutomacoes,
   ) {}
 
   async listar(escritorioId: string, filtros: BuscarEmpresas) {
@@ -90,6 +92,21 @@ export class EmpresasServico {
       entidade: 'Empresa',
       entidadeId: empresa.id,
       diff: { depois: dados },
+    });
+
+    await this.dispatcher.disparar({
+      tipo: 'EMPRESA_CADASTRADA',
+      escritorioId,
+      payload: {
+        empresa: {
+          id: empresa.id,
+          cnpj: empresa.cnpj,
+          razaoSocial: empresa.razaoSocial,
+          nomeFantasia: empresa.nomeFantasia,
+          regime: empresa.regime,
+          status: empresa.status,
+        },
+      },
     });
 
     return empresa;

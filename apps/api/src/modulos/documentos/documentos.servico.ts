@@ -3,6 +3,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 
 import { PrismaService } from '../../comum/prisma/prisma.service';
 import { AuditoriaServico } from '../auditoria/auditoria.servico';
+import { DispatcherAutomacoes } from '../automacoes/dispatcher.servico';
 
 import { ArmazenamentoServico } from './armazenamento.servico';
 
@@ -21,6 +22,7 @@ export class DocumentosServico {
     private readonly prisma: PrismaService,
     private readonly armazenamento: ArmazenamentoServico,
     private readonly auditoria: AuditoriaServico,
+    private readonly dispatcher: DispatcherAutomacoes,
   ) {}
 
   async listar(escritorioId: string, filtros: BuscarDocumentos) {
@@ -113,6 +115,22 @@ export class DocumentosServico {
       acao: 'documento.criado',
       entidade: 'Documento',
       entidadeId: documento.id,
+    });
+
+    await this.dispatcher.disparar({
+      tipo: 'DOCUMENTO_ENVIADO',
+      escritorioId: usuario.escritorioId,
+      payload: {
+        documento: {
+          id: documento.id,
+          nome: documento.nome,
+          mimeType: documento.mimeType,
+          tamanhoBytes: Number(documento.tamanhoBytes),
+          categoriaId: documento.categoriaId,
+          empresaId: documento.empresaId,
+          criadoPorId: documento.criadoPorId,
+        },
+      },
     });
 
     return documento;
