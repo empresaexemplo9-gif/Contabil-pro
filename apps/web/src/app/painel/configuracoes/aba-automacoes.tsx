@@ -1,5 +1,8 @@
 'use client';
 
+import { useState } from 'react';
+
+import { BuilderAutomacao } from '@/components/configuracoes/builder-automacao';
 import {
   useAtivarAutomacao,
   useAutomacoes,
@@ -26,14 +29,27 @@ export function AbaAutomacoes() {
   const { data, isLoading, error } = useAutomacoes();
   const ativar = useAtivarAutomacao();
   const pausar = usePausarAutomacao();
+  const [construindo, setConstruindo] = useState(false);
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Automações disparam ações (notificar, enviar e-mail/WhatsApp, criar tarefa)
-        quando eventos do sistema acontecem. O construtor visual chega em breve — por
-        ora, automações são criadas via API.
-      </p>
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm text-muted-foreground">
+          Automações disparam ações (notificar, enviar e-mail/WhatsApp, criar tarefa)
+          quando eventos do sistema acontecem.
+        </p>
+        {!construindo && (
+          <button
+            type="button"
+            onClick={() => setConstruindo(true)}
+            className="rounded-md bg-primary px-3 py-1 text-xs text-primary-foreground hover:bg-primary/90"
+          >
+            + Nova automação
+          </button>
+        )}
+      </div>
+
+      {construindo && <BuilderAutomacao aoFechar={() => setConstruindo(false)} />}
 
       {isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}
       {error && <p className="text-sm text-destructive">Falha ao carregar automações.</p>}

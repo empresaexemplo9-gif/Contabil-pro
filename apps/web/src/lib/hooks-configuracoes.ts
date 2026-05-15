@@ -238,3 +238,12 @@ export function usePausarAutomacao() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['automacoes'] }),
   });
 }
+
+export function useCriarAutomacao() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (corpo: Record<string, unknown>) =>
+      clienteApi.post<AutomacaoResumo>('/automacoes', corpo),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['automacoes'] }),
+  });
+}
