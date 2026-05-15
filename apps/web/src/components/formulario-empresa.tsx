@@ -22,6 +22,9 @@ const REGIMES: Array<{ valor: CriarEmpresaEntrada['regime']; rotulo: string }> =
   { valor: 'IMUNE_ISENTO', rotulo: 'Imune/Isento' },
 ];
 
+const CLASSE_INPUT =
+  'w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20';
+
 export function FormularioEmpresa({
   valoresIniciais,
   textoSubmit,
@@ -49,14 +52,11 @@ export function FormularioEmpresa({
           <input
             {...form.register('cnpj')}
             placeholder="00.000.000/0000-00"
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+            className={CLASSE_INPUT}
           />
         </Campo>
         <Campo label="Regime tributário" erro={form.formState.errors.regime?.message}>
-          <select
-            {...form.register('regime')}
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-          >
+          <select {...form.register('regime')} className={CLASSE_INPUT}>
             {REGIMES.map((r) => (
               <option key={r.valor} value={r.valor}>
                 {r.rotulo}
@@ -67,17 +67,11 @@ export function FormularioEmpresa({
       </div>
 
       <Campo label="Razão social" erro={form.formState.errors.razaoSocial?.message}>
-        <input
-          {...form.register('razaoSocial')}
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-        />
+        <input {...form.register('razaoSocial')} className={CLASSE_INPUT} />
       </Campo>
 
       <Campo label="Nome fantasia" erro={form.formState.errors.nomeFantasia?.message}>
-        <input
-          {...form.register('nomeFantasia')}
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-        />
+        <input {...form.register('nomeFantasia')} className={CLASSE_INPUT} />
       </Campo>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -85,31 +79,25 @@ export function FormularioEmpresa({
           label="Inscrição estadual"
           erro={form.formState.errors.inscricaoEstadual?.message}
         >
-          <input
-            {...form.register('inscricaoEstadual')}
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-          />
+          <input {...form.register('inscricaoEstadual')} className={CLASSE_INPUT} />
         </Campo>
         <Campo
           label="Inscrição municipal"
           erro={form.formState.errors.inscricaoMunicipal?.message}
         >
-          <input
-            {...form.register('inscricaoMunicipal')}
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-          />
+          <input {...form.register('inscricaoMunicipal')} className={CLASSE_INPUT} />
         </Campo>
       </div>
 
       <Campo label="Observações" erro={form.formState.errors.observacoes?.message}>
-        <textarea
-          {...form.register('observacoes')}
-          rows={3}
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-        />
+        <textarea {...form.register('observacoes')} rows={3} className={CLASSE_INPUT} />
       </Campo>
 
-      {erro && <p className="text-sm text-destructive">{erro}</p>}
+      {erro && (
+        <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {erro}
+        </p>
+      )}
 
       <div className="flex justify-end">
         <Botao type="submit" disabled={emEnvio}>
@@ -131,7 +119,9 @@ function Campo({
 }) {
   return (
     <label className="block text-sm">
-      <span className="mb-1 block text-muted-foreground">{label}</span>
+      <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        {label}
+      </span>
       {children}
       {erro && <span className="mt-1 block text-xs text-destructive">{erro}</span>}
     </label>
