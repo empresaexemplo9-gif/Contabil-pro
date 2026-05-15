@@ -80,6 +80,37 @@ pnpm dev
 | SSL | não | sim, sempre |
 | BYPASSRLS p/ worker | aplique manualmente | crie role separada com BYPASSRLS |
 
+## CI: migrations automáticas
+
+O workflow `.github/workflows/migrate-neon.yml` aplica
+`prisma migrate deploy` automaticamente em todo push para `main` que
+mudar:
+- `packages/database/prisma/schema.prisma`
+- arquivos em `packages/database/prisma/migrations/`
+- `packages/database/prisma/sql/habilitar-rls.sql`
+
+### Configurar uma vez
+
+No repositório GitHub: **Settings → Secrets and variables → Actions →
+New repository secret**. Adicione:
+
+| Secret | Valor |
+|---|---|
+| `DATABASE_URL` | Pooled connection do Neon (com `-pooler`) |
+| `DIRECT_URL` | Direct connection do Neon (sem `-pooler`) |
+
+Opcionalmente, crie um **Environment** chamado `production` (Settings →
+Environments) e mova os secrets para lá — permite exigir aprovação
+manual antes do deploy.
+
+### Rodar RLS manualmente
+
+`habilitar-rls.sql` é idempotente, mas o workflow só roda
+`migrate deploy` por padrão. Para aplicar RLS:
+
+1. **Actions → Aplicar migrations no Neon → Run workflow**
+2. Marque "Reaplicar habilitar-rls.sql"
+
 ## Troubleshooting
 
 - **`PrismaClientInitializationError: P1001`**: rede/firewall bloqueando.

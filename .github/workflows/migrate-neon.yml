@@ -1,0 +1,67 @@
+name: Aplicar migrations no Neon
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/database/prisma/schema.prisma'
+      - 'packages/database/prisma/migrations/**'
+      - 'packages/database/prisma/sql/habilitar-rls.sql'
+      - '.github/workflows/migrate-neon.yml'
+  workflow_dispatch:
+    inputs:
+      aplicar-rls:
+        description: 'Reaplicar habilitar-rls.sql após migrate'
+        type: boolean
+        default: false
+
+# Cancela execuções pendentes da mesma branch — evita migrations
+# concorrentes contra o mesmo banco.
+concurrency:
+  group: migrate-neon-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: 20.10.0
+  PNPM_VERSION: 9.12.0
+
+jobs:
+  migrate:
+    name: prisma migrate deploy
+    runs-on: ubuntu-latest
+    # Secrets DATABASE_URL e DIRECT_URL devem ser configurados em
+    # Settings → Secrets and variables → Actions do repositório.
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      - name: Gerar Prisma client
+        run: pnpm db:gerar
+
+      - name: Aplicar migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: pnpm --filter @contabilpro/database exec prisma migrate deploy
+
+      - name: Aplicar políticas RLS (opcional)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.aplicar-rls }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: pnpm db:rls
+
+      - name: Status final
+        run: echo "✅ Migrations aplicadas com sucesso no Neon"
