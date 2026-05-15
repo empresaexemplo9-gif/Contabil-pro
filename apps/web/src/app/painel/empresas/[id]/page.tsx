@@ -1,6 +1,5 @@
 'use client';
 
-import { ArrowLeft, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
@@ -20,63 +19,58 @@ export default function PaginaEmpresa() {
   const [erro, setErro] = useState<string | null>(null);
 
   if (consulta.isLoading) {
-    return <p className="text-sm text-muted-foreground">Carregando...</p>;
+    return <p className="text-muted-foreground">Carregando...</p>;
   }
   if (consulta.isError || !consulta.data) {
-    return <p className="text-sm text-destructive">Empresa não encontrada.</p>;
+    return <p className="text-destructive">Empresa não encontrada.</p>;
   }
 
   const empresa = consulta.data;
 
   return (
     <div className="space-y-6">
-      <Link
-        href="/painel/empresas"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground transition hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Voltar para empresas
-      </Link>
+      <div className="text-sm">
+        <Link href="/painel/empresas" className="text-muted-foreground hover:underline">
+          ← Voltar para empresas
+        </Link>
+      </div>
 
-      <header className="flex flex-wrap items-start justify-between gap-4">
+      <header className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-semibold tracking-tight">
-            {empresa.razaoSocial}
-          </h1>
+          <h1 className="font-serif text-3xl font-semibold tracking-tight">{empresa.razaoSocial}</h1>
           {empresa.nomeFantasia && (
-            <p className="text-sm text-muted-foreground">{empresa.nomeFantasia}</p>
+            <p className="text-muted-foreground">{empresa.nomeFantasia}</p>
           )}
           <p className="mt-1 font-mono text-sm text-muted-foreground">
             {formatarCnpj(empresa.cnpj)}
           </p>
         </div>
-        <div className="flex flex-col items-end gap-2 text-sm">
+        <div className="text-right text-sm">
           <span
             className={
               empresa.status === 'ATIVA'
-                ? 'inline-flex items-center rounded-full bg-secondary/15 px-2.5 py-0.5 text-xs font-medium text-secondary'
-                : 'inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground'
+                ? 'rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-800'
+                : 'rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground'
             }
           >
             {rotuloStatus(empresa.status)}
           </span>
-          <p className="text-muted-foreground">{rotuloRegime(empresa.regime)}</p>
+          <p className="mt-2 text-muted-foreground">{rotuloRegime(empresa.regime)}</p>
           <p className="text-xs text-muted-foreground">
             Cadastrada em {formatarData(empresa.criadoEm)}
           </p>
         </div>
       </header>
 
-      <section className="space-y-4 rounded-lg border border-border bg-card p-5 shadow-card-soft">
+      <section className="space-y-3 rounded-lg border bg-card p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-medium">Dados cadastrais</h2>
           {!editando && (
             <button
               type="button"
               onClick={() => setEditando(true)}
-              className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-sm transition hover:bg-muted"
+              className="text-sm text-primary hover:underline"
             >
-              <Pencil className="h-3.5 w-3.5" />
               Editar
             </button>
           )}
@@ -111,16 +105,14 @@ export default function PaginaEmpresa() {
             }}
           />
         ) : (
-          <dl className="grid gap-4 text-sm sm:grid-cols-2">
+          <dl className="grid gap-3 text-sm sm:grid-cols-2">
             <Linha rotulo="Inscrição estadual" valor={empresa.inscricaoEstadual} />
             <Linha rotulo="Inscrição municipal" valor={empresa.inscricaoMunicipal} />
             <Linha rotulo="Data de abertura" valor={formatarData(empresa.dataAbertura)} />
             <Linha rotulo="Última atualização" valor={formatarData(empresa.atualizadoEm)} />
             {empresa.observacoes && (
               <div className="sm:col-span-2">
-                <dt className="text-xs uppercase tracking-wide text-muted-foreground">
-                  Observações
-                </dt>
+                <dt className="text-muted-foreground">Observações</dt>
                 <dd className="mt-1 whitespace-pre-line">{empresa.observacoes}</dd>
               </div>
             )}
@@ -136,8 +128,8 @@ export default function PaginaEmpresa() {
 function Linha({ rotulo, valor }: { rotulo: string; valor: string | null | undefined }) {
   return (
     <div>
-      <dt className="text-xs uppercase tracking-wide text-muted-foreground">{rotulo}</dt>
-      <dd className="mt-0.5">{valor ?? '—'}</dd>
+      <dt className="text-muted-foreground">{rotulo}</dt>
+      <dd>{valor ?? '—'}</dd>
     </div>
   );
 }

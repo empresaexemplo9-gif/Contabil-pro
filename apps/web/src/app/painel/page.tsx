@@ -1,15 +1,6 @@
 'use client';
 
 import {
-  Building2,
-  ClipboardList,
-  FileSignature,
-  FileText,
-  ListChecks,
-  MessageSquare,
-  TrendingUp,
-} from 'lucide-react';
-import {
   Bar,
   BarChart,
   CartesianGrid,
@@ -40,25 +31,18 @@ const ROTULO_CANAL: Record<string, string> = {
   WHATSAPP: 'WhatsApp',
 };
 
-// Paleta DRAP — navy/verde/dourado
-const NAVY = 'hsl(222 75% 25%)';
-const VERDE = 'hsl(139 36% 35%)';
-const DOURADO = 'hsl(38 55% 48%)';
-const VERMELHO = 'hsl(0 65% 50%)';
-const CINZA = 'hsl(240 6% 55%)';
-
 const CORES_STATUS: Record<string, string> = {
-  PENDENTE: CINZA,
-  EM_ANDAMENTO: NAVY,
-  CONCLUIDA: VERDE,
-  ATRASADA: VERMELHO,
-  CANCELADA: 'hsl(240 6% 70%)',
+  PENDENTE: '#94a3b8',
+  EM_ANDAMENTO: '#3b82f6',
+  CONCLUIDA: '#10b981',
+  ATRASADA: '#ef4444',
+  CANCELADA: '#a8a29e',
 };
 
 const CORES_CANAL: Record<string, string> = {
-  PORTAL: NAVY,
-  EMAIL: DOURADO,
-  WHATSAPP: VERDE,
+  PORTAL: '#3b82f6',
+  EMAIL: '#8b5cf6',
+  WHATSAPP: '#10b981',
 };
 
 export default function PaginaDashboard() {
@@ -90,56 +74,27 @@ export default function PaginaDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-serif text-3xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Visão geral do escritório nos últimos 30 dias.
-        </p>
-      </div>
+      <h1 className="font-serif text-3xl font-semibold tracking-tight">Dashboard</h1>
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
-        <CartaoIndicador
-          titulo="Empresas ativas"
-          valor={resumo.data?.empresasAtivas}
-          icone={<Building2 className="h-4 w-4" />}
-        />
-        <CartaoIndicador
-          titulo="Total empresas"
-          valor={resumo.data?.totalEmpresas}
-          icone={<Building2 className="h-4 w-4" />}
-        />
-        <CartaoIndicador
-          titulo="Tarefas pendentes"
-          valor={resumo.data?.tarefasPendentes}
-          icone={<ListChecks className="h-4 w-4" />}
-        />
+        <CartaoIndicador titulo="Empresas ativas" valor={resumo.data?.empresasAtivas} />
+        <CartaoIndicador titulo="Total empresas" valor={resumo.data?.totalEmpresas} />
+        <CartaoIndicador titulo="Tarefas pendentes" valor={resumo.data?.tarefasPendentes} />
         <CartaoIndicador
           titulo="Tarefas atrasadas"
           valor={resumo.data?.tarefasAtrasadas}
           acento="destructive"
-          icone={<ClipboardList className="h-4 w-4" />}
         />
         <CartaoIndicador
           titulo="Vencem em 7 dias"
           valor={resumo.data?.tarefasVencendoEm7Dias}
           acento="warning"
-          icone={<TrendingUp className="h-4 w-4" />}
         />
-        <CartaoIndicador
-          titulo="Conversas abertas"
-          valor={resumo.data?.conversasAbertas}
-          icone={<MessageSquare className="h-4 w-4" />}
-        />
-        <CartaoIndicador
-          titulo="Docs no mês"
-          valor={resumo.data?.documentosNoMes}
-          icone={<FileText className="h-4 w-4" />}
-        />
+        <CartaoIndicador titulo="Conversas abertas" valor={resumo.data?.conversasAbertas} />
+        <CartaoIndicador titulo="Docs no mês" valor={resumo.data?.documentosNoMes} />
         <CartaoIndicador
           titulo="Assinaturas pendentes"
           valor={resumo.data?.assinaturasPendentes}
-          acento="warning"
-          icone={<FileSignature className="h-4 w-4" />}
         />
       </section>
 
@@ -148,22 +103,15 @@ export default function PaginaDashboard() {
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={dadosAtividade} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="data" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-              <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '0.5rem',
-                  fontSize: '12px',
-                }}
-              />
-              <Legend wrapperStyle={{ fontSize: '12px' }} />
+              <XAxis dataKey="data" tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+              <Tooltip />
+              <Legend />
               <Line
                 type="monotone"
                 dataKey="tarefas"
                 name="Tarefas concluídas"
-                stroke={VERDE}
+                stroke="#10b981"
                 strokeWidth={2}
                 dot={false}
               />
@@ -171,7 +119,7 @@ export default function PaginaDashboard() {
                 type="monotone"
                 dataKey="documentos"
                 name="Documentos enviados"
-                stroke={NAVY}
+                stroke="#3b82f6"
                 strokeWidth={2}
                 dot={false}
               />
@@ -192,18 +140,11 @@ export default function PaginaDashboard() {
                 label
               >
                 {dadosStatus.map((d) => (
-                  <Cell key={d.chave} fill={CORES_STATUS[d.chave] ?? CINZA} />
+                  <Cell key={d.chave} fill={CORES_STATUS[d.chave] ?? '#94a3b8'} />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '0.5rem',
-                  fontSize: '12px',
-                }}
-              />
-              <Legend wrapperStyle={{ fontSize: '12px' }} />
+              <Tooltip />
+              <Legend />
             </PieChart>
           </ResponsiveContainer>
         </CaixaGrafico>
@@ -212,24 +153,10 @@ export default function PaginaDashboard() {
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={dadosRegime} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis
-                dataKey="nome"
-                tick={{ fontSize: 11 }}
-                stroke="hsl(var(--muted-foreground))"
-                interval={0}
-                angle={-15}
-                dy={10}
-              />
-              <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '0.5rem',
-                  fontSize: '12px',
-                }}
-              />
-              <Bar dataKey="valor" name="Empresas" fill={NAVY} radius={[4, 4, 0, 0]} />
+              <XAxis dataKey="nome" tick={{ fontSize: 11 }} interval={0} angle={-15} dy={10} />
+              <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+              <Tooltip />
+              <Bar dataKey="valor" name="Empresas" fill="#3b82f6" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CaixaGrafico>
@@ -238,19 +165,12 @@ export default function PaginaDashboard() {
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={dadosCanal} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="nome" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-              <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '0.5rem',
-                  fontSize: '12px',
-                }}
-              />
+              <XAxis dataKey="nome" tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+              <Tooltip />
               <Bar dataKey="valor" name="Conversas" radius={[4, 4, 0, 0]}>
                 {dadosCanal.map((d) => (
-                  <Cell key={d.chave} fill={CORES_CANAL[d.chave] ?? CINZA} />
+                  <Cell key={d.chave} fill={CORES_CANAL[d.chave] ?? '#94a3b8'} />
                 ))}
               </Bar>
             </BarChart>
@@ -265,38 +185,31 @@ function CartaoIndicador({
   titulo,
   valor,
   acento,
-  icone,
 }: {
   titulo: string;
   valor?: number;
   acento?: 'destructive' | 'warning' | 'success';
-  icone?: React.ReactNode;
 }) {
   const corValor =
     acento === 'destructive'
       ? 'text-destructive'
       : acento === 'warning'
-        ? 'text-accent'
+        ? 'text-amber-600'
         : acento === 'success'
-          ? 'text-secondary'
-          : 'text-foreground';
+          ? 'text-emerald-600'
+          : '';
   return (
-    <div className="rounded-lg border border-border bg-card p-3 shadow-card-soft">
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-        {icone}
-        <span className="truncate">{titulo}</span>
-      </div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${corValor}`}>
-        {valor ?? '—'}
-      </div>
+    <div className="rounded-lg border bg-card p-3">
+      <div className="text-xs text-muted-foreground">{titulo}</div>
+      <div className={`mt-1 text-2xl font-semibold ${corValor}`}>{valor ?? '—'}</div>
     </div>
   );
 }
 
 function CaixaGrafico({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-4 shadow-card-soft">
-      <h2 className="mb-3 text-sm font-medium text-foreground">{titulo}</h2>
+    <div className="rounded-lg border bg-card p-4">
+      <h2 className="mb-2 text-sm font-medium text-muted-foreground">{titulo}</h2>
       {children}
     </div>
   );

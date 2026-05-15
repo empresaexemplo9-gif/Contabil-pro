@@ -1,6 +1,5 @@
 'use client';
 
-import { Search } from 'lucide-react';
 import { useState } from 'react';
 
 import { Botao } from '@contabilpro/ui';
@@ -23,18 +22,18 @@ const STATUS_PERMITIDOS: StatusTarefa[] = [
 ];
 
 const COR_PRIORIDADE: Record<string, string> = {
-  BAIXA: 'bg-muted text-muted-foreground',
-  MEDIA: 'bg-primary/10 text-primary',
-  ALTA: 'bg-accent/15 text-accent',
-  URGENTE: 'bg-destructive/10 text-destructive',
+  BAIXA: 'bg-slate-100 text-slate-700',
+  MEDIA: 'bg-blue-100 text-blue-800',
+  ALTA: 'bg-amber-100 text-amber-800',
+  URGENTE: 'bg-red-100 text-red-800',
 };
 
 const COR_STATUS: Record<string, string> = {
-  PENDENTE: 'bg-muted text-muted-foreground border-border',
-  EM_ANDAMENTO: 'bg-primary/10 text-primary border-primary/20',
-  CONCLUIDA: 'bg-secondary/15 text-secondary border-secondary/20',
-  ATRASADA: 'bg-destructive/10 text-destructive border-destructive/20',
-  CANCELADA: 'bg-muted text-muted-foreground border-border',
+  PENDENTE: 'bg-slate-100 text-slate-700',
+  EM_ANDAMENTO: 'bg-blue-100 text-blue-800',
+  CONCLUIDA: 'bg-emerald-100 text-emerald-800',
+  ATRASADA: 'bg-red-100 text-red-800',
+  CANCELADA: 'bg-muted text-muted-foreground',
 };
 
 export default function PaginaTarefas() {
@@ -53,13 +52,8 @@ export default function PaginaTarefas() {
   });
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-serif text-3xl font-semibold tracking-tight">Tarefas</h1>
-        <p className="text-sm text-muted-foreground">
-          Gestão de tarefas e prazos do escritório.
-        </p>
-      </div>
+    <div className="space-y-4">
+      <h1 className="font-serif text-3xl font-semibold tracking-tight">Tarefas</h1>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <CartaoMetrica titulo="Pendentes" valor={metricas.data?.pendentes} />
@@ -67,11 +61,7 @@ export default function PaginaTarefas() {
         <CartaoMetrica titulo="Atrasadas" valor={metricas.data?.atrasadas} acento="destructive" />
         <CartaoMetrica titulo="Vencem hoje" valor={metricas.data?.vencemHoje} acento="warning" />
         <CartaoMetrica titulo="Próximos 7 dias" valor={metricas.data?.proximos7Dias} />
-        <CartaoMetrica
-          titulo="Concluídas (mês)"
-          valor={metricas.data?.concluidasMes}
-          acento="success"
-        />
+        <CartaoMetrica titulo="Concluídas (mês)" valor={metricas.data?.concluidasMes} acento="success" />
       </div>
 
       <form
@@ -81,28 +71,21 @@ export default function PaginaTarefas() {
         }}
         className="flex flex-wrap items-end gap-2"
       >
-        <div className="min-w-64 flex-1">
-          <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Buscar
-          </label>
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="search"
-              value={termo}
-              onChange={(e) => setTermo(e.target.value)}
-              className="w-full rounded-md border border-input bg-background py-2 pl-9 pr-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
-            />
-          </div>
+        <div className="flex-1 min-w-64">
+          <label className="block text-xs text-muted-foreground">Buscar</label>
+          <input
+            type="search"
+            value={termo}
+            onChange={(e) => setTermo(e.target.value)}
+            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+          />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Status
-          </label>
+          <label className="block text-xs text-muted-foreground">Status</label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as StatusTarefa | '')}
-            className="rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
+            className="rounded-md border bg-background px-3 py-2 text-sm"
           >
             <option value="">Todos</option>
             {STATUS_PERMITIDOS.map((s) => (
@@ -113,16 +96,14 @@ export default function PaginaTarefas() {
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Vencendo em (dias)
-          </label>
+          <label className="block text-xs text-muted-foreground">Vencendo em (dias)</label>
           <input
             type="number"
             min={1}
             max={365}
             value={vencendoEm}
             onChange={(e) => setVencendoEm(e.target.value ? Number(e.target.value) : '')}
-            className="w-32 rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
+            className="w-32 rounded-md border bg-background px-3 py-2 text-sm"
           />
         </div>
         <Botao type="submit" variante="contorno">
@@ -130,10 +111,10 @@ export default function PaginaTarefas() {
         </Botao>
       </form>
 
-      <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card-soft">
+      <div className="overflow-hidden rounded-lg border bg-card">
         <table className="w-full text-sm">
-          <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
-            <tr>
+          <thead className="bg-muted/50">
+            <tr className="text-left">
               <th className="px-4 py-3 font-medium">Tarefa</th>
               <th className="px-4 py-3 font-medium">Empresa</th>
               <th className="px-4 py-3 font-medium">Prioridade</th>
@@ -145,14 +126,14 @@ export default function PaginaTarefas() {
           <tbody>
             {consulta.isLoading && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                   Carregando...
                 </td>
               </tr>
             )}
             {consulta.data?.itens.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                   Nenhuma tarefa encontrada com esses filtros.
                 </td>
               </tr>
@@ -170,7 +151,7 @@ export default function PaginaTarefas() {
 function LinhaTarefa({ tarefa }: { tarefa: TarefaListada }) {
   const atualizar = useAtualizarTarefa();
   return (
-    <tr className="border-t border-border transition hover:bg-muted/30">
+    <tr className="border-t hover:bg-muted/30">
       <td className="px-4 py-3">
         <div className="font-medium">{tarefa.titulo}</div>
         {tarefa.modelo && (
@@ -180,9 +161,7 @@ function LinhaTarefa({ tarefa }: { tarefa: TarefaListada }) {
       <td className="px-4 py-3">{tarefa.empresa?.razaoSocial ?? '—'}</td>
       <td className="px-4 py-3">
         <span
-          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-            COR_PRIORIDADE[tarefa.prioridade] ?? ''
-          }`}
+          className={`rounded-full px-2 py-0.5 text-xs ${COR_PRIORIDADE[tarefa.prioridade] ?? ''}`}
         >
           {rotuloPrioridade(tarefa.prioridade)}
         </span>
@@ -198,9 +177,7 @@ function LinhaTarefa({ tarefa }: { tarefa: TarefaListada }) {
               dados: { status: e.target.value as StatusTarefa },
             })
           }
-          className={`rounded-md border px-2 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring/20 ${
-            COR_STATUS[tarefa.status] ?? ''
-          }`}
+          className={`rounded-md border px-2 py-1 text-xs ${COR_STATUS[tarefa.status] ?? ''}`}
         >
           {STATUS_PERMITIDOS.map((s) => (
             <option key={s} value={s}>
@@ -226,16 +203,14 @@ function CartaoMetrica({
     acento === 'destructive'
       ? 'text-destructive'
       : acento === 'warning'
-        ? 'text-accent'
+        ? 'text-amber-600'
         : acento === 'success'
-          ? 'text-secondary'
-          : 'text-foreground';
+          ? 'text-emerald-600'
+          : '';
   return (
-    <div className="rounded-lg border border-border bg-card p-3 shadow-card-soft">
+    <div className="rounded-lg border bg-card p-3">
       <div className="text-xs text-muted-foreground">{titulo}</div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${corValor}`}>
-        {valor ?? '—'}
-      </div>
+      <div className={`mt-1 text-2xl font-semibold ${corValor}`}>{valor ?? '—'}</div>
     </div>
   );
 }
