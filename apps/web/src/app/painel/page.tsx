@@ -74,7 +74,7 @@ export default function PaginaDashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
+      <h1 className="font-serif text-3xl font-semibold tracking-tight">Dashboard</h1>
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
         <CartaoIndicador titulo="Empresas ativas" valor={resumo.data?.empresasAtivas} />

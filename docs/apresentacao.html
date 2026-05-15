@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ContábilPro — Visão geral do produto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0A1F44;
+    --green:#2D5F3F;
+    --cream:#F4F1E8;
+    --charcoal:#2A2A30;
+    --gold:#9B7B3D;
+    --muted:#6b6b73;
+    --border:#dcd6c4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    background:var(--cream);
+    color:var(--charcoal);
+    line-height:1.55;
+    font-size:15px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600}
+  a{color:var(--navy);text-decoration:none;border-bottom:1px solid var(--gold)}
+  a:hover{color:var(--gold)}
+
+  /* Layout container */
+  .wrap{max-width:1100px;margin:0 auto;padding:0 28px}
+
+  /* Hero */
+  header.hero{
+    background:var(--navy);
+    color:var(--cream);
+    padding:80px 28px 70px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:'';position:absolute;inset:0;
+    background:
+      radial-gradient(circle at 20% 30%,rgba(155,123,61,.18) 0,transparent 45%),
+      radial-gradient(circle at 80% 70%,rgba(45,95,63,.20) 0,transparent 45%);
+    pointer-events:none;
+  }
+  .hero .wrap{position:relative;text-align:center}
+  .monogram{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:64px;height:64px;border-radius:6px;
+    background:rgba(244,241,232,.06);
+    border:1px solid rgba(155,123,61,.4);
+    color:var(--gold);
+    margin:0 auto 18px;
+  }
+  .monogram .serif{font-size:30px;line-height:1}
+  .eyebrow{
+    font-size:11px;letter-spacing:.32em;text-transform:uppercase;
+    color:rgba(155,123,61,.85);margin-bottom:14px;
+  }
+  h1{
+    font-family:'Cormorant Garamond',serif;
+    font-size:64px;letter-spacing:-.01em;line-height:1.05;font-weight:600;
+  }
+  h1 .accent{color:var(--gold)}
+  .divider{
+    width:140px;height:1px;background:rgba(155,123,61,.5);
+    margin:18px auto 22px;
+  }
+  .tagline{font-size:17px;max-width:560px;margin:0 auto;opacity:.85}
+  .meta{
+    display:flex;gap:32px;justify-content:center;
+    margin-top:36px;font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;color:rgba(244,241,232,.55);
+  }
+  .meta strong{color:var(--gold);font-weight:500}
+
+  /* Sections */
+  section{padding:60px 0;border-bottom:1px solid var(--border)}
+  section:last-of-type{border-bottom:0}
+  .section-eyebrow{
+    font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:6px;font-weight:600;
+  }
+  h2{
+    font-family:'Cormorant Garamond',serif;
+    font-size:38px;font-weight:600;letter-spacing:-.01em;
+    color:var(--navy);margin-bottom:22px;
+  }
+  h2 .accent{color:var(--gold)}
+  h3{
+    font-family:'Cormorant Garamond',serif;
+    font-size:22px;font-weight:600;color:var(--navy);
+    margin-bottom:6px;
+  }
+  p.lead{font-size:16px;color:var(--muted);max-width:680px;margin-bottom:28px}
+
+  /* Two-column */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+  @media(max-width:780px){.two-col{grid-template-columns:1fr}}
+
+  /* Cards */
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  @media(max-width:780px){.grid-3,.grid-2{grid-template-columns:1fr}}
+  .card{
+    background:#fff;border:1px solid var(--border);border-radius:8px;
+    padding:22px 22px 20px;
+    box-shadow:0 1px 2px rgba(10,31,68,.04);
+    transition:transform .15s ease,border-color .15s ease;
+  }
+  .card:hover{transform:translateY(-2px);border-color:var(--gold)}
+  .card .icon{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:36px;height:36px;border-radius:6px;
+    background:rgba(10,31,68,.06);color:var(--navy);
+    font-size:18px;margin-bottom:14px;
+  }
+  .card h3{font-size:18px;margin-bottom:6px}
+  .card p{font-size:14px;color:var(--muted);line-height:1.5}
+
+  /* Tables */
+  table{width:100%;border-collapse:collapse;margin-top:12px;background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  th,td{padding:13px 18px;text-align:left;font-size:14px;border-bottom:1px solid var(--border)}
+  th{background:rgba(10,31,68,.04);color:var(--navy);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.1em}
+  tr:last-child td{border-bottom:0}
+  td .pill{display:inline-block;font-size:11px;padding:3px 9px;border-radius:99px;background:rgba(45,95,63,.12);color:var(--green);font-weight:600}
+  td .pill.warn{background:rgba(155,123,61,.15);color:var(--gold)}
+
+  /* Mockup */
+  .mockup{
+    background:var(--navy);border-radius:10px;overflow:hidden;
+    box-shadow:0 14px 40px -14px rgba(10,31,68,.3);
+    color:var(--cream);
+    font-family:'Inter',sans-serif;font-size:11px;
+  }
+  .mockup .topbar{
+    background:rgba(244,241,232,.04);
+    padding:10px 14px;display:flex;justify-content:space-between;align-items:center;
+    border-bottom:1px solid rgba(244,241,232,.08);
+  }
+  .mockup .topbar .brand{display:flex;align-items:center;gap:8px;color:var(--gold);font-weight:600}
+  .mockup .body{display:grid;grid-template-columns:160px 1fr;min-height:280px}
+  .mockup .side{background:rgba(0,0,0,.18);padding:14px 10px;border-right:1px solid rgba(244,241,232,.06)}
+  .mockup .side .grp{font-size:9px;letter-spacing:.2em;color:rgba(244,241,232,.4);margin:10px 6px 6px;text-transform:uppercase}
+  .mockup .side a{display:block;padding:5px 8px;color:rgba(244,241,232,.7);border-radius:4px;border:0;margin-bottom:1px}
+  .mockup .side a.act{background:rgba(155,123,61,.12);color:var(--gold);border-left:2px solid var(--gold);padding-left:10px}
+  .mockup .main{padding:20px}
+  .mockup .h{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--cream);margin-bottom:12px}
+  .mockup .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+  .mockup .stat{background:rgba(244,241,232,.05);border:1px solid rgba(244,241,232,.08);padding:10px;border-radius:6px}
+  .mockup .stat .lbl{font-size:9px;color:rgba(244,241,232,.55);text-transform:uppercase;letter-spacing:.1em}
+  .mockup .stat .val{font-size:22px;color:var(--gold);font-weight:600;margin-top:3px}
+  .mockup .chart{height:90px;background:linear-gradient(180deg,rgba(155,123,61,.18) 0,rgba(155,123,61,0) 100%);border-radius:6px;border:1px solid rgba(244,241,232,.08);position:relative;overflow:hidden}
+  .mockup .chart svg{width:100%;height:100%}
+
+  /* Status box */
+  .status-box{
+    background:#fff;border:1px solid var(--border);border-radius:8px;padding:0;overflow:hidden;
+  }
+  .status-row{display:grid;grid-template-columns:1fr auto;gap:16px;padding:13px 18px;border-bottom:1px solid var(--border);align-items:center}
+  .status-row:last-child{border-bottom:0}
+  .status-row strong{font-weight:500;color:var(--charcoal)}
+
+  /* Cost */
+  .cost{
+    background:linear-gradient(180deg,rgba(45,95,63,.05) 0,rgba(155,123,61,.04) 100%);
+    border:1px solid var(--border);border-radius:10px;padding:24px;
+  }
+  .cost h3{margin-bottom:12px}
+
+  /* Footer */
+  footer{
+    background:var(--navy);color:rgba(244,241,232,.6);
+    padding:38px 28px 30px;text-align:center;
+    font-size:12px;letter-spacing:.05em;
+  }
+  footer .mark{color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:18px;display:block;margin-bottom:6px}
+
+  /* Print */
+  @media print{
+    body{background:#fff;font-size:11pt}
+    section{padding:24px 0;page-break-inside:avoid}
+    .hero{padding:40px 20px}
+    h1{font-size:42pt}
+    .card:hover{transform:none}
+    a{color:inherit;border-bottom:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="monogram"><span class="serif">C</span></div>
+    <div class="eyebrow">Contabilidade · Patrimônio · Confiança</div>
+    <h1>Contábil<span class="accent">Pro</span></h1>
+    <div class="divider"></div>
+    <p class="tagline">Plataforma de gestão contábil digital com a sobriedade
+    de um private bank. Documentos, obrigações, atendimento e portal do cliente
+    em uma única experiência.</p>
+    <div class="meta">
+      <span><strong>Status:</strong> MVP completo</span>
+      <span><strong>Stack:</strong> Next 15 · Nest 10 · Postgres</span>
+      <span><strong>Visual:</strong> Paleta DRAP</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow">O que é</div>
+    <h2>Um SaaS multi-tenant para escritórios de contabilidade</h2>
+    <p class="lead">Inspirado em Whatslog, Acessórias e Onvio. Une, num só
+    produto, gestão documental com assinatura eletrônica, controle de
+    obrigações fiscais, central de atendimento omnichannel, automações
+    operacionais, dashboards e integrações.</p>
+
+    <div class="grid-2">
+      <div>
+        <h3>Painel do escritório</h3>
+        <p style="color:var(--muted);font-size:14px">Para você, contadores e
+        assistentes. Visão completa: empresas-cliente, documentos, tarefas,
+        atendimento omnichannel, automações, relatórios e configurações.</p>
+        <p style="margin-top:10px;font-size:13px"><code style="background:rgba(10,31,68,.05);padding:2px 8px;border-radius:4px;color:var(--navy)">/login</code></p>
+      </div>
+      <div>
+        <h3>Portal do cliente</h3>
+        <p style="color:var(--muted);font-size:14px">Para a empresa que o
+        escritório atende. Vê só o que é dela: documentos compartilhados,
+        obrigações pendentes, assinaturas e chat direto com o escritório.</p>
+        <p style="margin-top:10px;font-size:13px"><code style="background:rgba(10,31,68,.05);padding:2px 8px;border-radius:4px;color:var(--navy)">/portal-cliente/login</code></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow">Funcionalidades principais</div>
+    <h2>Tudo o que um escritório precisa para operar</h2>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon">🔐</div>
+        <h3>Autenticação robusta</h3>
+        <p>Login por senha (Argon2id), por Google, com 2FA opcional. Sem
+        cadastro público — só admin convida.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🏢</div>
+        <h3>Empresas-cliente</h3>
+        <p>CRM contábil: CNPJ validado, regime tributário, contatos. Cada
+        cliente tem seu próprio histórico e portal isolado.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📄</div>
+        <h3>Cofre de documentos</h3>
+        <p>Upload com versionamento, categorias, busca por nome, hash SHA-256
+        para integridade, download via URL temporária.</p>
+      </div>
+      <div class="card">
+        <div class="icon">✍️</div>
+        <h3>Assinatura eletrônica</h3>
+        <p>Integração com ZapSign (e Clicksign/D4Sign possíveis). Status em
+        tempo real via webhook.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📋</div>
+        <h3>Obrigações e tarefas</h3>
+        <p>Modelos recorrentes (DCTF, GFIP, etc.) gerados automaticamente;
+        prazos com lembretes multi-canal.</p>
+      </div>
+      <div class="card">
+        <div class="icon">💬</div>
+        <h3>Atendimento omnichannel</h3>
+        <p>Chat ao vivo no portal, WhatsApp Business e e-mail unificados em
+        uma só inbox, com SLA e histórico.</p>
+      </div>
+      <div class="card">
+        <div class="icon">⚙️</div>
+        <h3>Automações no-code</h3>
+        <p>Engine "se isto, então aquilo": gatilho → condição → ação. Sem
+        precisar programar.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📊</div>
+        <h3>Dashboards e relatórios</h3>
+        <p>Indicadores em tempo real, gráficos, filtros por período,
+        exportação CSV.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🛡️</div>
+        <h3>Auditoria e LGPD</h3>
+        <p>Log imutável de ações sensíveis (LGPD art. 37). Multi-tenant com
+        isolamento via Row-Level Security do Postgres.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow">Como aparece na tela</div>
+    <h2>Identidade visual <span class="accent">DRAP</span></h2>
+    <p class="lead">Paleta navy + dourado + verde + cream. Tipografia
+    serif (Cormorant Garamond) nos títulos, sans (Inter) no corpo.
+    Modo claro e modo escuro. Sidebar colapsável, breadcrumbs, busca global,
+    notificações em tempo real.</p>
+
+    <div class="mockup">
+      <div class="topbar">
+        <div class="brand">⬢ ContábilPro</div>
+        <div style="opacity:.5">🌙 🔔 Você ▾</div>
+      </div>
+      <div class="body">
+        <div class="side">
+          <a class="act">📊 Dashboard</a>
+          <div class="grp">Operação</div>
+          <a>🏢 Empresas</a>
+          <a>📄 Documentos</a>
+          <a>✅ Tarefas</a>
+          <a>📋 Obrigações</a>
+          <div class="grp">Comunicação</div>
+          <a>💬 Atendimento</a>
+          <a>⚙ Automações</a>
+          <div class="grp">Análise</div>
+          <a>📈 Relatórios</a>
+          <div class="grp">Sistema</div>
+          <a>🔧 Configurações</a>
+        </div>
+        <div class="main">
+          <div class="h">Dashboard</div>
+          <div class="stats">
+            <div class="stat"><div class="lbl">Empresas</div><div class="val">42</div></div>
+            <div class="stat"><div class="lbl">Pendentes</div><div class="val">17</div></div>
+            <div class="stat"><div class="lbl">Atrasadas</div><div class="val">3</div></div>
+            <div class="stat"><div class="lbl">Conversas</div><div class="val">8</div></div>
+          </div>
+          <div class="chart">
+            <svg viewBox="0 0 400 90" preserveAspectRatio="none">
+              <polyline points="0,70 30,55 60,60 90,40 120,45 150,30 180,38 210,22 240,28 270,18 300,25 330,12 360,18 400,8"
+                fill="none" stroke="#9B7B3D" stroke-width="2"/>
+              <polyline points="0,80 30,72 60,68 90,60 120,62 150,55 180,52 210,48 240,42 270,38 300,30 330,28 360,20 400,15"
+                fill="none" stroke="#2D5F3F" stroke-width="2" stroke-dasharray="3,3"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow">Estado do projeto</div>
+    <h2>O que está pronto, o que falta</h2>
+
+    <div class="status-box" style="margin-top:18px">
+      <div class="status-row"><strong>Código completo do MVP</strong>            <span class="pill">pronto</span></div>
+      <div class="status-row"><strong>Visual com paleta DRAP aplicada</strong>   <span class="pill">pronto</span></div>
+      <div class="status-row"><strong>Modo escuro</strong>                       <span class="pill">pronto</span></div>
+      <div class="status-row"><strong>Login por senha</strong>                   <span class="pill">pronto</span></div>
+      <div class="status-row"><strong>Login com Google (OAuth)</strong>          <span class="pill warn">precisa credenciais Google Cloud</span></div>
+      <div class="status-row"><strong>Sem cadastro público</strong>              <span class="pill">pronto</span></div>
+      <div class="status-row"><strong>Convite de usuário só por ADMIN</strong>   <span class="pill">pronto</span></div>
+      <div class="status-row"><strong>Seu acesso ADMIN no seed</strong>          <span class="pill">pronto</span></div>
+      <div class="status-row"><strong>Portal do cliente completo</strong>        <span class="pill">pronto</span></div>
+      <div class="status-row"><strong>Auditoria LGPD</strong>                    <span class="pill">pronto</span></div>
+      <div class="status-row"><strong>Multi-tenant com isolamento</strong>       <span class="pill">pronto</span></div>
+      <div class="status-row"><strong>Pipeline CI (lint/type-check/build)</strong> <span class="pill">pronto</span></div>
+      <div class="status-row"><strong>Dockerfiles + configs Render/Vercel/Fly</strong> <span class="pill">pronto</span></div>
+      <div class="status-row"><strong>URL pública no ar</strong>                 <span class="pill warn">depende de você criar contas</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow">Para colocar online</div>
+    <h2>Três caminhos possíveis</h2>
+    <p class="lead">A documentação completa está em <code>docs/DEPLOY.md</code>
+    no repositório, em PT-BR, com comandos prontos. Qualquer dev consegue seguir.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Caminho</th>
+          <th>Quem faz</th>
+          <th>Tempo</th>
+          <th>Custo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>A.</strong> Você mesmo seguindo o passo-a-passo</td>
+          <td>Você no terminal Windows</td>
+          <td>1–3h aprendendo</td>
+          <td>R$ 0 (com cold start)</td>
+        </tr>
+        <tr>
+          <td><strong>B.</strong> Contratar freelancer</td>
+          <td>Dev no Workana / 99Freelas</td>
+          <td>1–2 dias</td>
+          <td>R$ 200–500 (uma vez)</td>
+        </tr>
+        <tr>
+          <td><strong>C.</strong> Empresa de DevOps gerenciada</td>
+          <td>Time externo</td>
+          <td>Imediato</td>
+          <td>≈ R$ 200/mês fixo</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="two-col" style="margin-top:32px">
+      <div class="cost">
+        <h3>Custos mensais quando online</h3>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:14px">
+          MVP rodando vazio fica praticamente em <strong style="color:var(--green)">R$ 0</strong>.
+          Conforme cresce, escala suavemente:</p>
+        <table style="margin-top:0">
+          <tr><th>Volume</th><th style="text-align:right">Custo aprox.</th></tr>
+          <tr><td>MVP de testes</td><td style="text-align:right">R$ 0</td></tr>
+          <tr><td>5–10 escritórios reais</td><td style="text-align:right">~ US$ 15–25 (R$ 90–150)</td></tr>
+          <tr><td>50+ escritórios</td><td style="text-align:right">~ US$ 80–120 (R$ 480–720)</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3>O que precisa contratar</h3>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:10px">Tudo
+        em planos free no início:</p>
+        <ul style="list-style:none;padding:0">
+          <li style="padding:8px 0;border-bottom:1px solid var(--border)"><strong>Render</strong> (free) — hospeda API + worker</li>
+          <li style="padding:8px 0;border-bottom:1px solid var(--border)"><strong>Vercel</strong> (free) — hospeda o site</li>
+          <li style="padding:8px 0;border-bottom:1px solid var(--border)"><strong>Neon</strong> (free) — banco de dados Postgres</li>
+          <li style="padding:8px 0;border-bottom:1px solid var(--border)"><strong>Upstash</strong> (free) — cache e filas Redis</li>
+          <li style="padding:8px 0;border-bottom:1px solid var(--border)"><strong>Resend</strong> (free 3k/mês) — envio de e-mails</li>
+          <li style="padding:8px 0"><strong>Cloudflare R2</strong> (10 GB free) — armazenamento dos documentos</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow">Por baixo do capô</div>
+    <h2>Tecnologia escolhida</h2>
+    <p class="lead">Stack moderno, padrão de mercado, fácil de manter e de
+    encontrar profissionais. Nenhuma dependência exótica.</p>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon">🎨</div>
+        <h3>Frontend</h3>
+        <p>Next.js 15 + React 19 + Tailwind. Modo escuro, responsivo, busca
+        em tempo real, dashboard com Recharts.</p>
+      </div>
+      <div class="card">
+        <div class="icon">⚙️</div>
+        <h3>Backend</h3>
+        <p>NestJS 10 + Prisma + PostgreSQL 16. Clean Architecture, validação
+        com Zod, JWT RS256.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🚦</div>
+        <h3>Filas e jobs</h3>
+        <p>BullMQ + Redis para envio de e-mail, WhatsApp, lembretes
+        automáticos e processamento de documentos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="mark">ContábilPro</span>
+  Documento gerado automaticamente · Repositório: empresaexemplo9-gif/Contabil-pro<br>
+  Branch: <code style="color:var(--gold)">claude/continue-contabilpro-uL3Li</code>
+</footer>
+
+</body>
+</html>

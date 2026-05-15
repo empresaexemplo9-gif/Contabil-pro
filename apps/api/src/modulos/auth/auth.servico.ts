@@ -92,6 +92,34 @@ export class AuthServico {
     };
   }
 
+  /**
+   * Emite o par token-acesso+refresh para um usuário já autenticado
+   * por meios externos (ex.: OAuth Google).
+   */
+  async emitirSessao(
+    usuarioId: string,
+    vinculo: {
+      escritorioId: string;
+      papel: string;
+      permissoes: string[];
+      empresaId?: string | null;
+    },
+    contexto: { ip?: string; userAgent?: string },
+  ): Promise<LoginSaida> {
+    const tokenAcesso = await this.emitirAcesso(usuarioId, vinculo);
+    const tokenRefresh = await this.criarSessao(usuarioId, contexto);
+    await this.prisma.usuario.update({
+      where: { id: usuarioId },
+      data: { ultimoLoginEm: new Date() },
+    });
+    return {
+      tokenAcesso,
+      tokenRefresh,
+      expiraEm: TTL_ACESSO_SEGUNDOS,
+      exigeMfa: false,
+    };
+  }
+
   async renovar(
     dados: RefreshEntrada,
     contexto: { ip?: string; userAgent?: string },

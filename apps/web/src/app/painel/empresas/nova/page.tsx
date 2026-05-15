@@ -20,7 +20,7 @@ export default function PaginaNovaEmpresa() {
           ← Voltar para empresas
         </Link>
       </div>
-      <h1 className="text-2xl font-semibold">Nova empresa</h1>
+      <h1 className="font-serif text-3xl font-semibold tracking-tight">Nova empresa</h1>
 
       <FormularioEmpresa
         textoSubmit="Cadastrar empresa"

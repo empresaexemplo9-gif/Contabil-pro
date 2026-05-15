@@ -2,36 +2,84 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================================
+ * Identidade ContábilPro — inspirada na paleta "DRAP"
+ *   - primary    → navy profundo (marca, ações, links)
+ *   - accent     → dourado quente (destaques, badges, microacentos)
+ *   - secondary  → verde escuro institucional (success, tags positivas)
+ *   - background → cream off-white (luz)
+ *   - foreground → charcoal acinzentado (texto)
+ *   - dark mode  → navy ainda mais profundo + dourado/verde mais quentes
+ * ============================================================================ */
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;
+    /* Superfícies */
+    --background: 45 38% 95%;          /* cream #F4F1E8 levemente mais claro */
+    --foreground: 240 12% 18%;         /* charcoal #2A2A30 (mais legível que o cinza puro) */
+    --card: 0 0% 100%;
+    --card-foreground: 240 12% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 12% 18%;
+    --muted: 45 25% 92%;               /* cream um tom mais frio */
+    --muted-foreground: 240 6% 38%;
+
+    /* Marca */
+    --primary: 222 75% 15%;            /* navy #0A1F44 */
+    --primary-foreground: 45 38% 95%;
+    --secondary: 139 36% 28%;          /* verde escuro #2D5F3F */
+    --secondary-foreground: 45 38% 95%;
+    --accent: 38 45% 42%;              /* dourado #9B7B3D */
+    --accent-foreground: 45 38% 95%;
+
+    /* Status */
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 139 36% 28%;            /* mesmo verde institucional */
+    --warning: 38 45% 42%;             /* dourado faz papel de "atenção" */
+
+    /* Bordas e foco */
+    --border: 45 20% 85%;
+    --input: 45 20% 85%;
+    --ring: 222 75% 25%;
+
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 11%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 63% 51%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 217 91% 60%;
+    /* Superfícies escuras: navy ainda mais profundo, sem ser preto */
+    --background: 222 50% 7%;
+    --foreground: 45 35% 94%;
+    --card: 222 42% 10%;
+    --card-foreground: 45 35% 94%;
+    --popover: 222 42% 10%;
+    --popover-foreground: 45 35% 94%;
+    --muted: 222 28% 16%;
+    --muted-foreground: 45 15% 72%;
+
+    /* Marca no escuro: primary clareia para contraste; dourado mais quente */
+    --primary: 38 60% 60%;             /* dourado vira marca no escuro — pop natural */
+    --primary-foreground: 222 75% 10%;
+    --secondary: 139 36% 42%;
+    --secondary-foreground: 45 38% 95%;
+    --accent: 222 60% 40%;             /* navy clareado vira microacento no escuro */
+    --accent-foreground: 45 38% 95%;
+
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 139 36% 50%;
+    --warning: 38 60% 55%;
+
+    --border: 222 28% 22%;
+    --input: 222 28% 22%;
+    --ring: 38 60% 60%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }

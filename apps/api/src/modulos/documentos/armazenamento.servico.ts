@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 
 import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { Injectable } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 
 import { configurarEnv } from '../../config/env';
 
@@ -10,18 +10,32 @@ const TTL_PRESIGN_SEGUNDOS = 600;
 
 @Injectable()
 export class ArmazenamentoServico {
-  private readonly cliente: S3Client;
-  private readonly bucket: string;
+  private readonly cliente: S3Client | null;
+  private readonly bucket: string | null;
 
   constructor() {
     const env = configurarEnv();
-    this.bucket = env.S3_BUCKET;
-    this.cliente = new S3Client({
-      region: env.S3_REGION,
-      endpoint: env.S3_ENDPOINT,
-      forcePathStyle: env.S3_FORCE_PATH_STYLE,
-      credentials: { accessKeyId: env.S3_ACCESS_KEY, secretAccessKey: env.S3_SECRET_KEY },
-    });
+    if (env.S3_ENDPOINT && env.S3_BUCKET && env.S3_ACCESS_KEY && env.S3_SECRET_KEY) {
+      this.bucket = env.S3_BUCKET;
+      this.cliente = new S3Client({
+        region: env.S3_REGION,
+        endpoint: env.S3_ENDPOINT,
+        forcePathStyle: env.S3_FORCE_PATH_STYLE,
+        credentials: { accessKeyId: env.S3_ACCESS_KEY, secretAccessKey: env.S3_SECRET_KEY },
+      });
+    } else {
+      this.bucket = null;
+      this.cliente = null;
+    }
+  }
+
+  private exigirCliente(): { cliente: S3Client; bucket: string } {
+    if (!this.cliente || !this.bucket) {
+      throw new ServiceUnavailableException(
+        'Armazenamento de documentos não configurado. Defina S3_ENDPOINT, S3_BUCKET, S3_ACCESS_KEY e S3_SECRET_KEY.',
+      );
+    }
+    return { cliente: this.cliente, bucket: this.bucket };
   }
 
   gerarChave(escritorioId: string, nomeArquivo: string): string {
@@ -36,19 +50,21 @@ export class ArmazenamentoServico {
     escritorioId: string,
     dados: { nome: string; mimeType: string; tamanhoBytes: number },
   ): Promise<{ url: string; chave: string; expiraEm: number }> {
+    const { cliente, bucket } = this.exigirCliente();
     const chave = this.gerarChave(escritorioId, dados.nome);
     const comando = new PutObjectCommand({
-      Bucket: this.bucket,
+      Bucket: bucket,
       Key: chave,
       ContentType: dados.mimeType,
       ContentLength: dados.tamanhoBytes,
     });
-    const url = await getSignedUrl(this.cliente, comando, { expiresIn: TTL_PRESIGN_SEGUNDOS });
+    const url = await getSignedUrl(cliente, comando, { expiresIn: TTL_PRESIGN_SEGUNDOS });
     return { url, chave, expiraEm: TTL_PRESIGN_SEGUNDOS };
   }
 
   async gerarUrlDownload(chave: string): Promise<string> {
-    const comando = new GetObjectCommand({ Bucket: this.bucket, Key: chave });
-    return getSignedUrl(this.cliente, comando, { expiresIn: TTL_PRESIGN_SEGUNDOS });
+    const { cliente, bucket } = this.exigirCliente();
+    const comando = new GetObjectCommand({ Bucket: bucket, Key: chave });
+    return getSignedUrl(cliente, comando, { expiresIn: TTL_PRESIGN_SEGUNDOS });
   }
 }

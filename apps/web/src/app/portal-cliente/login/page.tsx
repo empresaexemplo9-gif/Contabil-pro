@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { BotaoGoogle } from '@/components/botao-google';
 import { clienteApi } from '@/lib/cliente-api';
 import { usarLojaAuth } from '@/lib/loja-auth';
 import type { LoginSaida } from '@contabilpro/contracts';
@@ -38,14 +39,30 @@ export default function PaginaLoginCliente() {
     <main className="flex min-h-screen items-center justify-center p-6">
       <form
         onSubmit={aoEnviar}
-        className="w-full max-w-sm space-y-4 rounded-lg border bg-card p-6 shadow-sm"
+        className="w-full max-w-sm space-y-5 rounded-lg border border-border bg-card p-7 shadow-card-soft"
       >
-        <div>
-          <h1 className="text-2xl font-semibold">Portal do Cliente</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Acesse documentos, obrigações e fale com seu escritório.
-          </p>
+        <div className="flex flex-col items-center gap-3">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-primary text-accent ring-1 ring-accent/30">
+            <span className="font-serif text-xl font-semibold">C</span>
+          </div>
+          <div className="text-center">
+            <h1 className="font-serif text-2xl font-semibold tracking-tight">
+              Portal do <span className="text-accent">Cliente</span>
+            </h1>
+            <p className="mt-1 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+              Documentos · Obrigações · Mensagens
+            </p>
+          </div>
         </div>
+
+        <BotaoGoogle audiencia="portal-cliente" />
+
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="h-px flex-1 bg-border" />
+          ou
+          <div className="h-px flex-1 bg-border" />
+        </div>
+
         <label className="block text-sm">
           E-mail
           <input

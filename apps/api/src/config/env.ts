@@ -2,7 +2,9 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  // PORT (convenção PaaS) tem prioridade sobre API_PORT (compatibilidade local).
   API_PORT: z.coerce.number().int().positive().default(3333),
+  PORT: z.coerce.number().int().positive().optional(),
   API_URL: z.string().url(),
   WEB_URL: z.string().url(),
   CORS_ORIGINS: z.string().default('http://localhost:3000'),
@@ -15,11 +17,13 @@ const envSchema = z.object({
   JWT_ACCESS_TTL: z.string().default('15m'),
   JWT_REFRESH_TTL: z.string().default('30d'),
 
-  S3_ENDPOINT: z.string().url(),
+  // Storage S3-compatível — opcional para permitir subir sem provedor ainda
+  // (upload/download de documentos ficam desativados até preencher).
+  S3_ENDPOINT: z.string().url().optional(),
   S3_REGION: z.string().default('us-east-1'),
-  S3_BUCKET: z.string(),
-  S3_ACCESS_KEY: z.string(),
-  S3_SECRET_KEY: z.string(),
+  S3_BUCKET: z.string().optional(),
+  S3_ACCESS_KEY: z.string().optional(),
+  S3_SECRET_KEY: z.string().optional(),
   S3_FORCE_PATH_STYLE: z
     .enum(['true', 'false'])
     .default('true')
@@ -34,6 +38,10 @@ const envSchema = z.object({
 
   ASSINATURA_PROVEDOR: z.enum(['zapsign', 'clicksign', 'd4sign']).default('zapsign'),
   ZAPSIGN_API_TOKEN: z.string().optional(),
+
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_REDIRECT_URI: z.string().url().optional(),
 
   SENTRY_DSN: z.string().optional(),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
@@ -50,6 +58,8 @@ export function configurarEnv(): Env {
     console.error('[env] variáveis inválidas:', resultado.error.flatten().fieldErrors);
     throw new Error('Configuração de ambiente inválida');
   }
-  cache = resultado.data;
+  const dados = resultado.data;
+  if (dados.PORT) dados.API_PORT = dados.PORT;
+  cache = dados;
   return cache;
 }

@@ -31,7 +31,7 @@ export default function PaginaObrigacoes() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Obrigações</h1>
+        <h1 className="font-serif text-3xl font-semibold tracking-tight">Obrigações</h1>
         {!adicionando && (
           <Botao onClick={() => setAdicionando(true)}>+ Novo modelo</Botao>
         )}

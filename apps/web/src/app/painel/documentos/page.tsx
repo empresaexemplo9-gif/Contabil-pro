@@ -46,7 +46,7 @@ export default function PaginaDocumentos() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Documentos</h1>
+        <h1 className="font-serif text-3xl font-semibold tracking-tight">Documentos</h1>
         <Link
           href="/painel/documentos/novo"
           className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90"

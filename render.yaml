@@ -1,0 +1,115 @@
+# Render Blueprint — ContábilPro (API + Worker no plano free, sem cartão)
+#
+# Como usar:
+#   1. Conectar este repositório à Render (Dashboard → Blueprints → New)
+#   2. Render lê este arquivo e cria os 2 services automaticamente
+#   3. Preencher os secrets marcados como `sync: false` no painel da Render
+#
+# A web (Next.js) NÃO entra aqui — vai pro Vercel via vercel.json.
+
+services:
+  - type: web
+    name: contabilpro-api
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: main
+    dockerfilePath: ./infra/docker/api.Dockerfile
+    dockerContext: .
+    healthCheckPath: /saude
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: API_URL
+        value: https://contabilpro-api.onrender.com
+      - key: WEB_URL
+        sync: false   # preencher após criar app na Vercel: https://<seu-projeto>.vercel.app
+      - key: CORS_ORIGINS
+        sync: false   # mesmo valor de WEB_URL
+      - key: DATABASE_URL
+        sync: false   # connection string da Neon (pooled, ?sslmode=require)
+      - key: REDIS_URL
+        sync: false   # rediss://default:<token>@<host>.upstash.io:6379
+      - key: JWT_PRIVATE_KEY
+        sync: false   # PEM completo (begin/end private key)
+      - key: JWT_PUBLIC_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false   # opcional — para envio de e-mails
+      - key: EMAIL_REMETENTE_PADRAO
+        sync: false   # opcional — ex.: onboarding@resend.dev até verificar domínio
+      - key: GOOGLE_CLIENT_ID
+        sync: false   # opcional — habilita login com Google
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        sync: false   # https://contabilpro-api.onrender.com/api/v1/auth/google/callback
+      - key: ASSINATURA_PROVEDOR
+        value: zapsign
+      - key: ZAPSIGN_API_TOKEN
+        sync: false   # opcional
+      # Storage: opcionais. Sem isso, upload/download de documentos retorna
+      # 503 mas o restante da app funciona. Para ativar depois, criar bucket
+      # em R2/B2/Supabase Storage e setar as 4 vars abaixo.
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_ACCESS_KEY
+        sync: false
+      - key: S3_SECRET_KEY
+        sync: false
+      - key: S3_REGION
+        value: auto
+      - key: S3_FORCE_PATH_STYLE
+        value: 'true'
+      - key: LOG_LEVEL
+        value: info
+
+  - type: worker
+    name: contabilpro-worker
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: main
+    dockerfilePath: ./infra/docker/worker.Dockerfile
+    dockerContext: .
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_REMETENTE_PADRAO
+        sync: false
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_VERIFY_TOKEN
+        sync: false
+      - key: ASSINATURA_PROVEDOR
+        value: zapsign
+      - key: ZAPSIGN_API_TOKEN
+        sync: false
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_ACCESS_KEY
+        sync: false
+      - key: S3_SECRET_KEY
+        sync: false
+      - key: S3_REGION
+        value: auto
+      - key: S3_FORCE_PATH_STYLE
+        value: 'true'
+      - key: LOG_LEVEL
+        value: info

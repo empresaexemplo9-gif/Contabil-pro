@@ -78,7 +78,7 @@ export default function PaginaDocumento() {
 
       <header className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">{doc.nome}</h1>
+          <h1 className="font-serif text-3xl font-semibold tracking-tight">{doc.nome}</h1>
           <p className="text-sm text-muted-foreground">
             {doc.mimeType} · {formatarBytes(doc.tamanhoBytes)} · v{doc.versaoAtual}
           </p>

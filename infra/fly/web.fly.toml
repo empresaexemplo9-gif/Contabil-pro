@@ -1,0 +1,44 @@
+# Fly.io — ContábilPro Web (Next.js standalone)
+#
+# Deploy:
+#   fly deploy --config infra/fly/web.fly.toml --dockerfile infra/docker/web.Dockerfile
+#
+# Antes do primeiro deploy:
+#   fly apps create contabilpro --org pessoal
+#   fly secrets set --app contabilpro NEXT_PUBLIC_API_URL=https://contabilpro-api.fly.dev
+
+app = "contabilpro"
+primary_region = "gru"
+
+[build]
+
+[env]
+  NODE_ENV = "production"
+  NEXT_PUBLIC_API_URL = "https://contabilpro-api.fly.dev"
+  NEXT_PUBLIC_AMBIENTE = "production"
+  NEXT_TELEMETRY_DISABLED = "1"
+  PORT = "3000"
+  HOSTNAME = "0.0.0.0"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  cpus = 1
+
+[deploy]
+  strategy = "rolling"

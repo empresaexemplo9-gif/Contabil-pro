@@ -76,6 +76,61 @@ export function useEquipe() {
   });
 }
 
+export interface NovoUsuarioEntrada {
+  email: string;
+  nome: string;
+  papel: 'PROPRIETARIO' | 'ADMIN' | 'CONTADOR' | 'ASSISTENTE' | 'CLIENTE';
+  empresaId?: string;
+  telefone?: string;
+  senhaTemporaria?: string;
+}
+
+export interface NovoUsuarioSaida {
+  id: string;
+  email: string;
+  nome: string;
+  papel: string;
+  senhaTemporaria?: string;
+}
+
+export function useCriarUsuario() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (dados: NovoUsuarioEntrada) =>
+      clienteApi.post<NovoUsuarioSaida>('/usuarios', dados),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['equipe'] }),
+  });
+}
+
+export function useAlterarPapel() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      usuarioId,
+      papel,
+      empresaId,
+    }: {
+      usuarioId: string;
+      papel: string;
+      empresaId?: string | null;
+    }) =>
+      clienteApi.patch<{ ok: boolean }>(`/usuarios/${usuarioId}/papel`, {
+        papel,
+        empresaId: empresaId ?? null,
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['equipe'] }),
+  });
+}
+
+export function useDesativarUsuario() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (usuarioId: string) =>
+      clienteApi.delete<void>(`/usuarios/${usuarioId}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['equipe'] }),
+  });
+}
+
 export function useIntegracoes() {
   return useQuery({
     queryKey: ['integracoes'],
