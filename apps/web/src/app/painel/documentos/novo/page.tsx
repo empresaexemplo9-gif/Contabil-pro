@@ -1,5 +1,6 @@
 'use client';
 
+import { ArrowLeft, UploadCloud } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -78,21 +79,33 @@ export default function PaginaNovoDocumento() {
   const emProcesso = etapa !== 'aguardando' && etapa !== 'concluido';
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
-      <div className="text-sm">
-        <Link href="/painel/documentos" className="text-muted-foreground hover:underline">
-          ← Voltar para documentos
-        </Link>
-      </div>
-      <h1 className="font-serif text-3xl font-semibold tracking-tight">Enviar documento</h1>
+    <div className="mx-auto max-w-2xl space-y-6">
+      <Link
+        href="/painel/documentos"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground transition hover:text-foreground"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Voltar para documentos
+      </Link>
 
-      <form onSubmit={aoEnviar} className="space-y-4 rounded-lg border bg-card p-6">
+      <div>
+        <h1 className="font-serif text-3xl font-semibold tracking-tight">Enviar documento</h1>
+        <p className="text-sm text-muted-foreground">
+          O arquivo é enviado direto ao storage com hash de integridade SHA-256.
+        </p>
+      </div>
+
+      <form
+        onSubmit={aoEnviar}
+        className="space-y-5 rounded-lg border border-border bg-card p-6 shadow-card-soft"
+      >
         <label
           htmlFor="arquivo"
-          className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed bg-background p-8 text-sm hover:bg-muted/30"
+          className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-border bg-muted/30 p-10 text-sm transition hover:border-primary/40 hover:bg-muted/50"
         >
           {arquivo ? (
             <>
+              <UploadCloud className="h-8 w-8 text-primary" />
               <span className="font-medium">{arquivo.name}</span>
               <span className="text-xs text-muted-foreground">
                 {formatarBytes(arquivo.size)} · {arquivo.type || 'tipo desconhecido'}
@@ -100,8 +113,11 @@ export default function PaginaNovoDocumento() {
             </>
           ) : (
             <>
-              <span>Clique ou arraste um arquivo</span>
-              <span className="text-xs text-muted-foreground">PDF, imagens ou planilhas até 500 MB</span>
+              <UploadCloud className="h-8 w-8 text-muted-foreground/60" />
+              <span className="font-medium">Clique ou arraste um arquivo</span>
+              <span className="text-xs text-muted-foreground">
+                PDF, imagens ou planilhas até 500 MB
+              </span>
             </>
           )}
           <input
@@ -113,14 +129,16 @@ export default function PaginaNovoDocumento() {
           />
         </label>
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <label className="block text-sm">
-            <span className="mb-1 block text-muted-foreground">Categoria</span>
+            <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Categoria
+            </span>
             <select
               value={categoriaId}
               onChange={(e) => setCategoriaId(e.target.value)}
               disabled={emProcesso}
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
             >
               <option value="">(sem categoria)</option>
               {categorias.data?.map((c) => (
@@ -131,22 +149,24 @@ export default function PaginaNovoDocumento() {
             </select>
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block text-muted-foreground">Empresa (ID)</span>
+            <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Empresa (ID)
+            </span>
             <input
               value={empresaId}
               onChange={(e) => setEmpresaId(e.target.value)}
               disabled={emProcesso}
               placeholder="opcional"
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
             />
           </label>
         </div>
 
         {emProcesso && (
-          <div className="space-y-1">
+          <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3">
             <div className="text-sm text-muted-foreground">{ROTULOS_ETAPA[etapa]}</div>
             {etapa === 'enviando' && (
-              <div className="h-2 w-full rounded-full bg-muted">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-2 rounded-full bg-primary transition-all"
                   style={{ width: `${progresso}%` }}
@@ -156,7 +176,9 @@ export default function PaginaNovoDocumento() {
           </div>
         )}
 
-        {erro && <p className="text-sm text-destructive">{erro}</p>}
+        {erro && (
+          <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{erro}</p>
+        )}
 
         <div className="flex justify-end">
           <Botao type="submit" disabled={!arquivo || emProcesso}>

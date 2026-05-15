@@ -1,5 +1,6 @@
 'use client';
 
+import { ArrowLeft, Download, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
@@ -27,9 +28,9 @@ export default function PaginaDocumento() {
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
-  if (consulta.isLoading) return <p className="text-muted-foreground">Carregando...</p>;
+  if (consulta.isLoading) return <p className="text-sm text-muted-foreground">Carregando...</p>;
   if (consulta.isError || !consulta.data) {
-    return <p className="text-destructive">Documento não encontrado.</p>;
+    return <p className="text-sm text-destructive">Documento não encontrado.</p>;
   }
 
   const doc = consulta.data;
@@ -70,61 +71,86 @@ export default function PaginaDocumento() {
 
   return (
     <div className="space-y-6">
-      <div className="text-sm">
-        <Link href="/painel/documentos" className="text-muted-foreground hover:underline">
-          ← Voltar para documentos
-        </Link>
-      </div>
+      <Link
+        href="/painel/documentos"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground transition hover:text-foreground"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Voltar para documentos
+      </Link>
 
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="font-serif text-3xl font-semibold tracking-tight">{doc.nome}</h1>
-          <p className="text-sm text-muted-foreground">
-            {doc.mimeType} · {formatarBytes(doc.tamanhoBytes)} · v{doc.versaoAtual}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Enviado em {formatarData(doc.criadoEm)}
-          </p>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="rounded-md bg-primary/10 p-2 text-primary">
+            <FileText className="h-6 w-6" />
+          </div>
+          <div>
+            <h1 className="font-serif text-3xl font-semibold tracking-tight">{doc.nome}</h1>
+            <p className="text-sm text-muted-foreground">
+              {doc.mimeType} · {formatarBytes(doc.tamanhoBytes)} ·{' '}
+              <span className="inline-flex items-center rounded-md bg-accent/10 px-1.5 py-0.5 text-xs font-medium text-accent">
+                v{doc.versaoAtual}
+              </span>
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Enviado em {formatarData(doc.criadoEm)}
+            </p>
+          </div>
         </div>
         <a
           href={doc.urlDownload}
           target="_blank"
           rel="noreferrer"
-          className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90"
+          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-card-soft transition hover:bg-primary/90"
         >
+          <Download className="h-4 w-4" />
           Baixar atual
         </a>
       </header>
 
-      <section className="grid gap-3 rounded-lg border bg-card p-4 text-sm sm:grid-cols-2">
+      <section className="grid gap-4 rounded-lg border border-border bg-card p-5 text-sm shadow-card-soft sm:grid-cols-2">
         <Linha rotulo="Categoria" valor={doc.categoria?.nome} />
         <Linha rotulo="Empresa" valor={doc.empresa?.razaoSocial} />
         <Linha rotulo="Status" valor={doc.status} />
-        <Linha rotulo="Hash SHA-256" valor={<code className="text-xs">{doc.hashSha256}</code>} />
+        <Linha
+          rotulo="Hash SHA-256"
+          valor={
+            <code className="break-all font-mono text-xs text-muted-foreground">
+              {doc.hashSha256}
+            </code>
+          }
+        />
       </section>
 
-      <section className="space-y-3 rounded-lg border bg-card p-4">
+      <section className="space-y-3 rounded-lg border border-border bg-card p-5 shadow-card-soft">
         <h2 className="text-lg font-medium">Versões</h2>
-        <ul className="divide-y">
+        <ul className="divide-y divide-border">
           {doc.versoes.length === 0 && (
             <li className="py-2 text-sm text-muted-foreground">
               Apenas a versão atual. Envie um arquivo abaixo para criar uma nova versão.
             </li>
           )}
           {doc.versoes.map((v) => (
-            <li key={v.id} className="flex items-center justify-between py-2 text-sm">
+            <li key={v.id} className="flex items-center justify-between gap-3 py-3 text-sm">
               <div>
-                <div className="font-medium">v{v.versao}</div>
-                <div className="text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 font-medium">
+                  <span className="inline-flex items-center rounded-md bg-accent/10 px-1.5 py-0.5 text-xs font-medium text-accent">
+                    v{v.versao}
+                  </span>
+                </div>
+                <div className="mt-0.5 text-xs text-muted-foreground">
                   {formatarBytes(v.tamanhoBytes)} · {formatarData(v.criadoEm)}
                 </div>
-                {v.notas && <div className="text-xs italic text-muted-foreground">{v.notas}</div>}
+                {v.notas && (
+                  <div className="mt-0.5 text-xs italic text-muted-foreground">{v.notas}</div>
+                )}
               </div>
               <button
                 type="button"
                 onClick={() => baixarVersao(v.id)}
-                className="text-xs text-primary hover:underline"
+                className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs transition hover:bg-muted"
               >
+                <Download className="h-3.5 w-3.5" />
                 Baixar
               </button>
             </li>
@@ -132,23 +158,27 @@ export default function PaginaDocumento() {
         </ul>
       </section>
 
-      <section className="space-y-3 rounded-lg border bg-card p-4">
+      <section className="space-y-3 rounded-lg border border-border bg-card p-5 shadow-card-soft">
         <h2 className="text-lg font-medium">Enviar nova versão</h2>
         <form onSubmit={enviarNovaVersao} className="space-y-3">
           <input
             type="file"
             onChange={(e) => setArquivoVersao(e.target.files?.[0] ?? null)}
             disabled={enviando}
-            className="block w-full text-sm"
+            className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-foreground hover:file:bg-muted/80"
           />
           <textarea
             placeholder="Notas (opcional)"
             value={notas}
             onChange={(e) => setNotas(e.target.value)}
             rows={2}
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
           />
-          {erro && <p className="text-sm text-destructive">{erro}</p>}
+          {erro && (
+            <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {erro}
+            </p>
+          )}
           <div className="flex justify-end">
             <Botao type="submit" disabled={!arquivoVersao || enviando}>
               {enviando ? 'Enviando...' : 'Adicionar versão'}
@@ -163,8 +193,8 @@ export default function PaginaDocumento() {
 function Linha({ rotulo, valor }: { rotulo: string; valor: React.ReactNode }) {
   return (
     <div>
-      <div className="text-muted-foreground">{rotulo}</div>
-      <div>{valor ?? '—'}</div>
+      <div className="text-xs uppercase tracking-wide text-muted-foreground">{rotulo}</div>
+      <div className="mt-0.5">{valor ?? '—'}</div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { CalendarClock, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -29,11 +30,24 @@ export default function PaginaObrigacoes() {
   const desativar = useDesativarModeloObrigacao();
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight">Obrigações</h1>
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="font-serif text-3xl font-semibold tracking-tight">Obrigações</h1>
+          <p className="text-sm text-muted-foreground">
+            Modelos recorrentes que geram tarefas automaticamente para todas as empresas
+            aplicáveis.
+          </p>
+        </div>
         {!adicionando && (
-          <Botao onClick={() => setAdicionando(true)}>+ Novo modelo</Botao>
+          <button
+            type="button"
+            onClick={() => setAdicionando(true)}
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-card-soft transition hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" />
+            Novo modelo
+          </button>
         )}
       </div>
 
@@ -48,15 +62,31 @@ export default function PaginaObrigacoes() {
         />
       )}
 
-      {modelos.isLoading && <p className="text-muted-foreground">Carregando...</p>}
+      {modelos.isLoading && (
+        <p className="text-sm text-muted-foreground">Carregando...</p>
+      )}
 
       <ul className="space-y-3">
         {modelos.data?.map((modelo) => (
-          <CartaoModelo key={modelo.id} modelo={modelo} aoDesativar={() => desativar.mutate(modelo.id)} />
+          <CartaoModelo
+            key={modelo.id}
+            modelo={modelo}
+            aoDesativar={() => desativar.mutate(modelo.id)}
+          />
         ))}
-        {modelos.data?.length === 0 && (
-          <li className="rounded-md border bg-card p-6 text-center text-sm text-muted-foreground">
-            Nenhum modelo de obrigação cadastrado.
+        {modelos.data?.length === 0 && !adicionando && (
+          <li className="rounded-lg border border-dashed border-border bg-card/50 p-10 text-center">
+            <CalendarClock className="mx-auto h-8 w-8 text-muted-foreground/60" />
+            <p className="mt-2 text-sm text-muted-foreground">
+              Nenhum modelo de obrigação cadastrado.
+            </p>
+            <button
+              type="button"
+              onClick={() => setAdicionando(true)}
+              className="mt-2 text-sm font-medium text-primary hover:underline"
+            >
+              Criar o primeiro modelo
+            </button>
           </li>
         )}
       </ul>
@@ -94,13 +124,17 @@ function CartaoModelo({
   }
 
   return (
-    <li className={`rounded-md border bg-card p-4 ${modelo.ativo ? '' : 'opacity-60'}`}>
+    <li
+      className={`rounded-lg border border-border bg-card p-5 shadow-card-soft ${
+        modelo.ativo ? '' : 'opacity-60'
+      }`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="font-medium">
+          <h2 className="flex items-center gap-2 font-medium">
             {modelo.nome}
             {!modelo.ativo && (
-              <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+              <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                 inativo
               </span>
             )}
@@ -118,7 +152,7 @@ function CartaoModelo({
           <button
             type="button"
             onClick={aoDesativar}
-            className="text-xs text-destructive hover:underline"
+            className="text-xs font-medium text-destructive hover:underline"
           >
             Desativar
           </button>
@@ -126,7 +160,7 @@ function CartaoModelo({
       </div>
 
       {modelo.ativo && modelo.diaVencimento && (
-        <div className="mt-3 flex flex-wrap items-end gap-2 border-t pt-3">
+        <div className="mt-4 flex flex-wrap items-end gap-2 border-t border-border pt-4">
           {!gerando ? (
             <Botao variante="contorno" tamanho="sm" onClick={() => setGerando(true)}>
               Gerar tarefas...
@@ -141,7 +175,7 @@ function CartaoModelo({
                   max={12}
                   value={mes}
                   onChange={(e) => setMes(Number(e.target.value))}
-                  className="w-20 rounded-md border bg-background px-2 py-1 text-sm"
+                  className="mt-0.5 w-20 rounded-md border border-input bg-background px-2 py-1 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
                 />
               </label>
               <label className="text-xs">
@@ -152,7 +186,7 @@ function CartaoModelo({
                   max={2100}
                   value={ano}
                   onChange={(e) => setAno(Number(e.target.value))}
-                  className="w-24 rounded-md border bg-background px-2 py-1 text-sm"
+                  className="mt-0.5 w-24 rounded-md border border-input bg-background px-2 py-1 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
                 />
               </label>
               <Botao tamanho="sm" onClick={executarGeracao} disabled={gerar.isPending}>
@@ -168,7 +202,9 @@ function CartaoModelo({
               >
                 Cancelar
               </Botao>
-              {resultado && <p className="ml-2 text-xs text-muted-foreground">{resultado}</p>}
+              {resultado && (
+                <p className="ml-2 text-xs text-muted-foreground">{resultado}</p>
+              )}
             </>
           )}
         </div>
@@ -194,23 +230,25 @@ function FormularioModelo({
   return (
     <form
       onSubmit={form.handleSubmit(aoSalvar)}
-      className="space-y-3 rounded-md border bg-card p-4"
+      className="space-y-4 rounded-lg border border-border bg-card p-5 shadow-card-soft"
     >
+      <h2 className="font-medium">Novo modelo de obrigação</h2>
+
       <input
         {...form.register('nome')}
         placeholder="Nome da obrigação (ex.: DCTFWeb)"
-        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
       />
       <textarea
         {...form.register('descricao')}
         placeholder="Descrição (opcional)"
         rows={2}
-        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
       />
       <div className="grid gap-2 sm:grid-cols-2">
         <select
           {...form.register('frequencia')}
-          className="rounded-md border bg-background px-3 py-2 text-sm"
+          className="rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
         >
           {FREQUENCIAS.map((f) => (
             <option key={f} value={f}>
@@ -224,11 +262,11 @@ function FormularioModelo({
           max={31}
           placeholder="Dia de vencimento"
           {...form.register('diaVencimento', { valueAsNumber: true })}
-          className="rounded-md border bg-background px-3 py-2 text-sm"
+          className="rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
         />
       </div>
-      <fieldset className="space-y-1 rounded-md border p-2 text-sm">
-        <legend className="px-1 text-xs text-muted-foreground">
+      <fieldset className="space-y-1 rounded-md border border-border p-3 text-sm">
+        <legend className="px-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           Regimes aplicáveis (vazio = todos)
         </legend>
         {REGIMES.map((r) => (
