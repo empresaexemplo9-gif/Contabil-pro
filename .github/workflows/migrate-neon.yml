@@ -29,8 +29,11 @@ jobs:
   migrate:
     name: prisma migrate deploy
     runs-on: ubuntu-latest
-    # Secrets DATABASE_URL e DIRECT_URL devem ser configurados em
-    # Settings → Secrets and variables → Actions do repositório.
+    # Secrets esperados (nomes seguem o padrão injetado pela integração
+    # Vercel ↔ Neon — copie 1x da aba "Storage" do Vercel):
+    #   POSTGRES_PRISMA_URL      → connection pooled p/ Prisma runtime
+    #   POSTGRES_URL_NON_POOLING → connection direct p/ migrate/seed/RLS
+    # Configurar em Settings → Secrets and variables → Actions.
     environment: production
     steps:
       - uses: actions/checkout@v4
@@ -52,15 +55,15 @@ jobs:
 
       - name: Aplicar migrations
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          DATABASE_URL: ${{ secrets.POSTGRES_PRISMA_URL }}
+          DIRECT_URL: ${{ secrets.POSTGRES_URL_NON_POOLING }}
         run: pnpm --filter @contabilpro/database exec prisma migrate deploy
 
       - name: Aplicar políticas RLS (opcional)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.aplicar-rls }}
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          DATABASE_URL: ${{ secrets.POSTGRES_PRISMA_URL }}
+          DIRECT_URL: ${{ secrets.POSTGRES_URL_NON_POOLING }}
         run: pnpm db:rls
 
       - name: Status final
