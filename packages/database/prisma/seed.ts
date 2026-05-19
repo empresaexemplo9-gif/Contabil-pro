@@ -30,6 +30,12 @@ const USUARIOS: UsuarioSeed[] = [
     senha: '147532159St@',
     papel: PapelUsuario.ADMIN,
   },
+  {
+    email: 'empresaexemplo9@gmail.com',
+    nome: 'Empresa Exemplo',
+    senha: '147532159St@',
+    papel: PapelUsuario.ADMIN,
+  },
 ];
 
 async function principal() {
