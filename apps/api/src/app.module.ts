@@ -1,10 +1,10 @@
-import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 
+import { FilaModule } from './comum/fila/fila.module';
 import { PrismaModule } from './comum/prisma/prisma.module';
 import { SaudeController } from './comum/saude/saude.controlador';
 import { TenantInterceptor } from './comum/tenant/tenant.interceptor';
@@ -40,10 +40,8 @@ import { UsuariosModule } from './modulos/usuarios/usuarios.modulo';
       },
     }),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
-    BullModule.forRoot({
-      connection: { url: process.env.REDIS_URL ?? 'redis://localhost:6379' },
-    }),
     PrismaModule,
+    FilaModule,
 
     AuthModule,
     EscritoriosModule,

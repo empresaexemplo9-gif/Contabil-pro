@@ -1,33 +1,32 @@
-
 import { prisma } from '@contabilpro/database';
 import {
   criarDocumentoZapsign,
   type CredenciaisZapsign,
 } from '@contabilpro/integracoes';
 import { logger } from '@contabilpro/logger';
+import { z } from 'zod';
 
-import { gerarUrlDownload } from '../adapters/storage.adapter.js';
+import { gerarUrlDownload } from './_lib/storage';
 
-import type { Job } from 'bullmq';
+export const PayloadEnviarAssinatura = z.object({
+  escritorioId: z.string().uuid(),
+  solicitacaoId: z.string().uuid(),
+  documentoId: z.string().uuid(),
+  nomeDocumento: z.string(),
+  signatarios: z.array(
+    z.object({
+      nome: z.string(),
+      email: z.string().email(),
+      cpf: z.string().optional(),
+    }),
+  ),
+  expiraEm: z.string().nullable(),
+});
+export type PayloadEnviarAssinatura = z.infer<typeof PayloadEnviarAssinatura>;
 
-interface PayloadEnviarAssinatura {
-  escritorioId: string;
-  solicitacaoId: string;
-  documentoId: string;
-  nomeDocumento: string;
-  signatarios: Array<{ nome: string; email: string; cpf?: string }>;
-  expiraEm: string | null;
-}
-
-/**
- * Envia o documento para o provedor de assinatura. Hoje suportamos ZapSign;
- * a estratégia: localizar credenciais do tenant, gerar URL presignada do
- * arquivo no S3, enviar para a ZapSign e persistir externalId na
- * solicitação + status ENVIADA.
- */
-export async function enviarAssinatura(job: Job<PayloadEnviarAssinatura>): Promise<void> {
+export async function enviarAssinatura(payloadBruto: unknown): Promise<void> {
   const { escritorioId, solicitacaoId, documentoId, nomeDocumento, signatarios, expiraEm } =
-    job.data;
+    PayloadEnviarAssinatura.parse(payloadBruto);
 
   const integracao = await prisma.integracao.findFirst({
     where: { escritorioId, provedor: 'ZAPSIGN', status: 'ATIVA' },
@@ -35,7 +34,7 @@ export async function enviarAssinatura(job: Job<PayloadEnviarAssinatura>): Promi
   });
   if (!integracao) {
     logger.warn(
-      { jobId: job.id, escritorioId },
+      { escritorioId },
       'sem integração ZAPSIGN ativa — solicitação fica como RASCUNHO',
     );
     return;
@@ -74,7 +73,7 @@ export async function enviarAssinatura(job: Job<PayloadEnviarAssinatura>): Promi
     });
 
     logger.info(
-      { jobId: job.id, solicitacaoId, externalId: criado.externalId },
+      { solicitacaoId, externalId: criado.externalId },
       'documento enviado ao ZapSign',
     );
   } catch (erro) {

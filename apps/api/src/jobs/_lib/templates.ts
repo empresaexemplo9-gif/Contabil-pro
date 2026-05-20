@@ -1,8 +1,7 @@
 /**
  * Template engine minimalista — substitui `{{ caminho.aninhado }}` pelo
  * valor correspondente no contexto. Caminhos não resolvidos viram string
- * vazia. Usado para interpolar variáveis nas configs dos passos de
- * automação.
+ * vazia.
  */
 export function aplicarTemplate(texto: string, contexto: Record<string, unknown>): string {
   return texto.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (_, caminho: string) => {

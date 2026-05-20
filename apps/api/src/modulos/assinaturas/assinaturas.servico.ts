@@ -1,12 +1,10 @@
 import { criarSolicitacaoAssinaturaSchema } from '@contabilpro/contracts';
-import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { z } from 'zod';
 
+import { FilaServico } from '../../comum/fila/fila.module';
 import { PrismaService } from '../../comum/prisma/prisma.service';
 import { configurarEnv } from '../../config/env';
-
-import type { Queue } from 'bullmq';
 
 type CriarSolicitacao = z.infer<typeof criarSolicitacaoAssinaturaSchema>;
 
@@ -14,7 +12,7 @@ type CriarSolicitacao = z.infer<typeof criarSolicitacaoAssinaturaSchema>;
 export class AssinaturasServico {
   constructor(
     private readonly prisma: PrismaService,
-    @InjectQueue('assinaturas') private readonly fila: Queue,
+    private readonly fila: FilaServico,
   ) {}
 
   listar(escritorioId: string) {
@@ -60,20 +58,16 @@ export class AssinaturasServico {
       include: { signatarios: true },
     });
 
-    // Envio real é feito pelo worker (precisa de URL presignada, retries,
-    // call externa). Aqui só enfileiramos com attempts + backoff exponencial.
-    await this.fila.add(
-      'enviar',
-      {
-        escritorioId,
-        solicitacaoId: solicitacao.id,
-        documentoId: documento.id,
-        nomeDocumento: documento.nome,
-        signatarios: dados.signatarios,
-        expiraEm: dados.expiraEm?.toISOString() ?? null,
-      },
-      { attempts: 3, backoff: { type: 'exponential', delay: 10_000 } },
-    );
+    // Envio real é feito por uma função Vercel (precisa de URL presignada,
+    // retries, call externa). Aqui só publicamos no QStash.
+    await this.fila.publicar('enviar-assinatura', {
+      escritorioId,
+      solicitacaoId: solicitacao.id,
+      documentoId: documento.id,
+      nomeDocumento: documento.nome,
+      signatarios: dados.signatarios,
+      expiraEm: dados.expiraEm?.toISOString() ?? null,
+    });
 
     return solicitacao;
   }

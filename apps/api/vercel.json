@@ -9,10 +9,37 @@
       "memory": 1024,
       "maxDuration": 60,
       "runtime": "@vercel/node@5.1.10"
+    },
+    "api/jobs/*.ts": {
+      "memory": 1024,
+      "maxDuration": 60,
+      "runtime": "@vercel/node@5.1.10"
+    },
+    "api/cron/*.ts": {
+      "memory": 1024,
+      "maxDuration": 60,
+      "runtime": "@vercel/node@5.1.10"
     }
   },
   "rewrites": [
-    { "source": "/(.*)", "destination": "/api" }
+    { "source": "/api/v1/:path*", "destination": "/api" },
+    { "source": "/saude", "destination": "/api" },
+    { "source": "/docs", "destination": "/api" },
+    { "source": "/docs-json", "destination": "/api" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/detectar-atrasadas",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/lembrar-obrigacoes",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/gerar-tarefas-automaticas",
+      "schedule": "0 6 25 * *"
+    }
   ],
   "regions": ["gru1"]
 }

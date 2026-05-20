@@ -1,10 +1,9 @@
-import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 
+import { FilaServico } from '../../comum/fila/fila.module';
 import { PrismaService } from '../../comum/prisma/prisma.service';
 
 import type { Condicao, EventoDispatch, Gatilho, TipoGatilho } from '@contabilpro/contracts';
-import type { Queue } from 'bullmq';
 
 
 
@@ -24,7 +23,7 @@ export class DispatcherAutomacoes {
 
   constructor(
     private readonly prisma: PrismaService,
-    @InjectQueue('automacoes') private readonly fila: Queue,
+    private readonly fila: FilaServico,
   ) {}
 
   async disparar(evento: EventoDispatch): Promise<void> {
@@ -41,15 +40,11 @@ export class DispatcherAutomacoes {
         if (!gatilho || gatilho.tipo !== evento.tipo) continue;
         if (!casaCondicoes(gatilho.condicoes ?? [], evento.payload)) continue;
 
-        await this.fila.add(
-          'executar',
-          {
-            automacaoId: automacao.id,
-            escritorioId: automacao.escritorioId,
-            evento: { tipo: evento.tipo, payload: evento.payload },
-          },
-          { attempts: 3, backoff: { type: 'exponential', delay: 10_000 } },
-        );
+        await this.fila.publicar('executar-automacao', {
+          automacaoId: automacao.id,
+          escritorioId: automacao.escritorioId,
+          evento: { tipo: evento.tipo, payload: evento.payload },
+        });
       }
     } catch (erro) {
       this.logger.error(

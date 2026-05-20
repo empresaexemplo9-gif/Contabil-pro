@@ -1,7 +1,6 @@
-import { InjectQueue } from '@nestjs/bullmq';
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 
-
+import { FilaServico } from '../../comum/fila/fila.module';
 import { PrismaService } from '../../comum/prisma/prisma.service';
 import { AuditoriaServico } from '../auditoria/auditoria.servico';
 
@@ -14,7 +13,6 @@ import type {
   StatusConversa,
 } from '@contabilpro/contracts';
 import type { Prisma } from '@contabilpro/database';
-import type { Queue } from 'bullmq';
 
 @Injectable()
 export class AtendimentoServico {
@@ -23,7 +21,7 @@ export class AtendimentoServico {
     private readonly auditoria: AuditoriaServico,
     @Inject(forwardRef(() => AtendimentoGateway))
     private readonly gateway: AtendimentoGateway,
-    @InjectQueue('whatsapp') private readonly filaWhatsapp: Queue,
+    private readonly fila: FilaServico,
   ) {}
 
   async listar(escritorioId: string, filtros: BuscarConversas) {
@@ -119,20 +117,16 @@ export class AtendimentoServico {
     this.gateway.broadcastMensagemNova(usuario.escritorioId, conversaId, mensagem);
     this.gateway.broadcastConversaAtualizada(usuario.escritorioId, conversaId);
 
-    // Outbound real: se a conversa é WhatsApp, enfileira para o worker entregar
-    // via Graph API. A mensagem já está persistida e visível na UI; o envio
-    // externo acontece em background com retries.
+    // Outbound real: se a conversa é WhatsApp, publica no QStash para que
+    // a função Vercel entregue via Graph API. A mensagem já está persistida
+    // e visível na UI; o envio externo acontece em background com retries.
     if (conversa.canal === 'WHATSAPP') {
-      await this.filaWhatsapp.add(
-        'enviar',
-        {
-          escritorioId: usuario.escritorioId,
-          conversaId: conversa.id,
-          mensagemId: mensagem.id,
-          texto,
-        },
-        { attempts: 3, backoff: { type: 'exponential', delay: 5000 } },
-      );
+      await this.fila.publicar('enviar-whatsapp', {
+        escritorioId: usuario.escritorioId,
+        conversaId: conversa.id,
+        mensagemId: mensagem.id,
+        texto,
+      });
     }
 
     return mensagem;

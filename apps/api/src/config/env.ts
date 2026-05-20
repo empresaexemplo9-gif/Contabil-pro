@@ -10,7 +10,16 @@ const envSchema = z.object({
   CORS_ORIGINS: z.string().default('http://localhost:3000'),
 
   DATABASE_URL: z.string().url(),
-  REDIS_URL: z.string().url(),
+  REDIS_URL: z.string().url().optional(),
+
+  // Upstash QStash — fila HTTP usada no lugar do BullMQ quando rodando
+  // serverless (Vercel). Em dev local sem QSTASH_TOKEN, os jobs rodam
+  // inline (síncronos) — útil pra teste mas não escala.
+  QSTASH_TOKEN: z.string().optional(),
+  QSTASH_CURRENT_SIGNING_KEY: z.string().optional(),
+  QSTASH_NEXT_SIGNING_KEY: z.string().optional(),
+  // Vercel Cron envia este header pra autenticar invocações agendadas.
+  CRON_SECRET: z.string().optional(),
 
   JWT_PRIVATE_KEY: z.string().min(20),
   JWT_PUBLIC_KEY: z.string().min(20),
