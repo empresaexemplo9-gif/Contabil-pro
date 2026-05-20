@@ -1,41 +1,36 @@
 import { randomBytes } from 'node:crypto';
 
-import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { del, put } from '@vercel/blob';
 
 import { configurarEnv } from '../../config/env';
 
-const TTL_PRESIGN_SEGUNDOS = 600;
-
+/**
+ * Encapsula o Vercel Blob (substitui o cliente S3 que existia antes).
+ *
+ * Diferenças importantes em relação ao S3:
+ * - **Sem presigned PUT URL**: o cliente envia multipart pra API e a API
+ *   chama `put()`. Limitação: corpo de função Vercel é 4.5 MB por padrão.
+ *   Pra arquivos maiores, use streaming + Fluid Compute (Pro).
+ * - **Download direto**: a URL retornada por `put()` é estável e pública.
+ *   Não há TTL — a URL contém um hash aleatório que serve de "token".
+ *   Mantenha-a privada (não vaze em logs/responses inadvertidos).
+ */
 @Injectable()
 export class ArmazenamentoServico {
-  private readonly cliente: S3Client | null;
-  private readonly bucket: string | null;
+  private readonly habilitado: boolean;
 
   constructor() {
     const env = configurarEnv();
-    if (env.S3_ENDPOINT && env.S3_BUCKET && env.S3_ACCESS_KEY && env.S3_SECRET_KEY) {
-      this.bucket = env.S3_BUCKET;
-      this.cliente = new S3Client({
-        region: env.S3_REGION,
-        endpoint: env.S3_ENDPOINT,
-        forcePathStyle: env.S3_FORCE_PATH_STYLE,
-        credentials: { accessKeyId: env.S3_ACCESS_KEY, secretAccessKey: env.S3_SECRET_KEY },
-      });
-    } else {
-      this.bucket = null;
-      this.cliente = null;
-    }
+    this.habilitado = !!env.BLOB_READ_WRITE_TOKEN;
   }
 
-  private exigirCliente(): { cliente: S3Client; bucket: string } {
-    if (!this.cliente || !this.bucket) {
+  private exigirHabilitado(): void {
+    if (!this.habilitado) {
       throw new ServiceUnavailableException(
-        'Armazenamento de documentos não configurado. Defina S3_ENDPOINT, S3_BUCKET, S3_ACCESS_KEY e S3_SECRET_KEY.',
+        'Armazenamento não configurado. Defina BLOB_READ_WRITE_TOKEN.',
       );
     }
-    return { cliente: this.cliente, bucket: this.bucket };
   }
 
   gerarChave(escritorioId: string, nomeArquivo: string): string {
@@ -46,25 +41,47 @@ export class ArmazenamentoServico {
     return `${escritorioId}/${ano}/${mes}/${sufixo}-${limpo}`;
   }
 
-  async gerarUrlUpload(
+  /**
+   * Faz upload do arquivo direto pro Vercel Blob e devolve a URL pública
+   * (com hash) e a chave lógica usada como identificador interno.
+   */
+  async upload(
     escritorioId: string,
-    dados: { nome: string; mimeType: string; tamanhoBytes: number },
-  ): Promise<{ url: string; chave: string; expiraEm: number }> {
-    const { cliente, bucket } = this.exigirCliente();
-    const chave = this.gerarChave(escritorioId, dados.nome);
-    const comando = new PutObjectCommand({
-      Bucket: bucket,
-      Key: chave,
-      ContentType: dados.mimeType,
-      ContentLength: dados.tamanhoBytes,
+    arquivo: { buffer: Buffer; mimetype: string; originalname: string },
+  ): Promise<{ url: string; chave: string }> {
+    this.exigirHabilitado();
+    const chave = this.gerarChave(escritorioId, arquivo.originalname);
+    const blob = await put(chave, arquivo.buffer, {
+      access: 'public',
+      contentType: arquivo.mimetype,
+      // addRandomSuffix false: usamos o sufixo determinístico de gerarChave
+      addRandomSuffix: false,
     });
-    const url = await getSignedUrl(cliente, comando, { expiresIn: TTL_PRESIGN_SEGUNDOS });
-    return { url, chave, expiraEm: TTL_PRESIGN_SEGUNDOS };
+    return { url: blob.url, chave };
   }
 
+  /**
+   * Para Vercel Blob, "URL de download" = URL pública estável do blob.
+   * Como armazenamos a chave (não a URL), reconstruímos via convenção:
+   * todas as URLs começam com `https://<account>.public.blob.vercel-storage.com/`.
+   *
+   * O `BLOB_PUBLIC_URL` (preencher na env) tem esse prefixo, sem trailing slash.
+   * Se não estiver definido, levanta erro pra evitar montar URL inválida.
+   */
   async gerarUrlDownload(chave: string): Promise<string> {
-    const { cliente, bucket } = this.exigirCliente();
-    const comando = new GetObjectCommand({ Bucket: bucket, Key: chave });
-    return getSignedUrl(cliente, comando, { expiresIn: TTL_PRESIGN_SEGUNDOS });
+    this.exigirHabilitado();
+    const env = configurarEnv();
+    if (!env.BLOB_PUBLIC_URL) {
+      throw new ServiceUnavailableException(
+        'BLOB_PUBLIC_URL não definida — copie da aba Storage do Vercel.',
+      );
+    }
+    return `${env.BLOB_PUBLIC_URL.replace(/\/$/, '')}/${chave}`;
+  }
+
+  async remover(chave: string): Promise<void> {
+    this.exigirHabilitado();
+    const url = await this.gerarUrlDownload(chave);
+    await del(url);
   }
 }

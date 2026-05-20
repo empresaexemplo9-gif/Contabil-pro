@@ -9,19 +9,17 @@ import { Botao } from '@contabilpro/ui';
 
 import {
   calcularSha256,
-  enviarArquivoParaUrl,
-  presignarUpload,
+  enviarDocumento,
   useCategoriasDocumento,
   useRegistrarDocumento,
 } from '@/lib/hooks-documentos';
 import { formatarBytes } from '@/lib/formatadores';
 
-type Etapa = 'aguardando' | 'calculando' | 'presignando' | 'enviando' | 'registrando' | 'concluido';
+type Etapa = 'aguardando' | 'calculando' | 'enviando' | 'registrando' | 'concluido';
 
 const ROTULOS_ETAPA: Record<Etapa, string> = {
   aguardando: 'Selecione um arquivo',
   calculando: 'Calculando hash...',
-  presignando: 'Solicitando URL de upload...',
   enviando: 'Enviando para o storage...',
   registrando: 'Registrando documento...',
   concluido: 'Concluído',
@@ -47,15 +45,8 @@ export default function PaginaNovoDocumento() {
       setEtapa('calculando');
       const hash = await calcularSha256(arquivo);
 
-      setEtapa('presignando');
-      const presign = await presignarUpload({
-        nome: arquivo.name,
-        mimeType: arquivo.type || 'application/octet-stream',
-        tamanhoBytes: arquivo.size,
-      });
-
       setEtapa('enviando');
-      await enviarArquivoParaUrl(presign.url, arquivo, setProgresso);
+      const upload = await enviarDocumento(arquivo, setProgresso);
 
       setEtapa('registrando');
       const doc = await registrar.mutateAsync({
@@ -63,7 +54,7 @@ export default function PaginaNovoDocumento() {
         mimeType: arquivo.type || 'application/octet-stream',
         tamanhoBytes: arquivo.size,
         hashSha256: hash,
-        chaveStorage: presign.chave,
+        chaveStorage: upload.chave,
         categoriaId: categoriaId || undefined,
         empresaId: empresaId || undefined,
       });

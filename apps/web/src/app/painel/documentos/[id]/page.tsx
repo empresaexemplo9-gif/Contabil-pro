@@ -9,9 +9,8 @@ import { Botao } from '@contabilpro/ui';
 
 import {
   calcularSha256,
-  enviarArquivoParaUrl,
+  enviarDocumento,
   obterUrlDownloadVersao,
-  presignarUpload,
   useCriarVersao,
   useDocumento,
 } from '@/lib/hooks-documentos';
@@ -42,17 +41,12 @@ export default function PaginaDocumento() {
     setEnviando(true);
     try {
       const hash = await calcularSha256(arquivoVersao);
-      const presign = await presignarUpload({
-        nome: arquivoVersao.name,
-        mimeType: arquivoVersao.type || 'application/octet-stream',
-        tamanhoBytes: arquivoVersao.size,
-      });
-      await enviarArquivoParaUrl(presign.url, arquivoVersao);
+      const upload = await enviarDocumento(arquivoVersao);
       await criarVersao.mutateAsync({
         mimeType: arquivoVersao.type || 'application/octet-stream',
         tamanhoBytes: arquivoVersao.size,
         hashSha256: hash,
-        chaveStorage: presign.chave,
+        chaveStorage: upload.chave,
         notas: notas || undefined,
       });
       setArquivoVersao(null);

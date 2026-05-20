@@ -4,9 +4,9 @@ import {
   criarCategoriaDocumentoSchema,
   criarDocumentoSchema,
   criarVersaoDocumentoSchema,
-  presignarUploadSchema,
 } from '@contabilpro/contracts';
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -15,8 +15,11 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Papeis } from '../../comum/decoradores/papeis.decorador';
@@ -80,10 +83,24 @@ export class DocumentosControlador {
     return this.servico.listar(usuario.escritorioId, buscarDocumentosSchema.parse(consulta));
   }
 
-  @Post('presignar-upload')
-  presignar(@UsuarioAtual() usuario: UsuarioAutenticado, @Body() corpo: unknown) {
-    const dados = presignarUploadSchema.parse(corpo);
-    return this.armazenamento.gerarUrlUpload(usuario.escritorioId, dados);
+  /**
+   * Upload de arquivo direto via multipart. Substitui o antigo
+   * `presignar-upload` (S3): no Vercel Blob não há presigned PUT,
+   * então o arquivo passa pela função e é enviado server-side.
+   * Limite: 4.5 MB por padrão no Vercel (pode aumentar no Pro).
+   */
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('arquivo'))
+  async upload(
+    @UsuarioAtual() usuario: UsuarioAutenticado,
+    @UploadedFile() arquivo: Express.Multer.File | undefined,
+  ): Promise<{ url: string; chave: string }> {
+    if (!arquivo) throw new BadRequestException('Arquivo obrigatório no campo "arquivo"');
+    return this.armazenamento.upload(usuario.escritorioId, {
+      buffer: arquivo.buffer,
+      mimetype: arquivo.mimetype,
+      originalname: arquivo.originalname,
+    });
   }
 
   @Get(':id')

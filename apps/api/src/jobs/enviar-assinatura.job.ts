@@ -50,7 +50,7 @@ export async function enviarAssinatura(payloadBruto: unknown): Promise<void> {
   });
   if (!documento) throw new Error(`Documento ${documentoId} não encontrado`);
 
-  const urlPdf = await gerarUrlDownload(documento.chaveStorage, 900);
+  const urlPdf = gerarUrlDownload(documento.chaveStorage);
 
   try {
     const criado = await criarDocumentoZapsign(

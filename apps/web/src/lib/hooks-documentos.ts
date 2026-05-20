@@ -9,7 +9,6 @@ import type {
   CriarDocumentoEntrada,
   CriarVersaoDocumentoEntrada,
   Documento,
-  PresignarUploadEntrada,
   VersaoDocumento,
 } from '@contabilpro/contracts';
 
@@ -84,33 +83,51 @@ export function useRemoverCategoria() {
   });
 }
 
-interface RespostaPresign {
+interface RespostaUpload {
   url: string;
   chave: string;
-  expiraEm: number;
 }
 
-export async function presignarUpload(dados: PresignarUploadEntrada): Promise<RespostaPresign> {
-  return clienteApi.post<RespostaPresign>('/documentos/presignar-upload', dados);
-}
-
-export async function enviarArquivoParaUrl(
-  url: string,
+/**
+ * Envia arquivo via multipart pra API, que faz upload no Vercel Blob.
+ * Retorna a URL pública do blob e a chave lógica (usada como id interno
+ * no `chaveStorage` ao registrar o documento).
+ *
+ * Limite atual: 4.5 MB por requisição (cap da Vercel function). Pra
+ * arquivos maiores, vai precisar Vercel Pro + streaming.
+ */
+export async function enviarDocumento(
   arquivo: File,
   aoProgresso?: (porcento: number) => void,
-): Promise<void> {
-  await new Promise<void>((resolver, rejeitar) => {
+): Promise<RespostaUpload> {
+  const urlApi = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3333';
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token-acesso') : null;
+
+  const formData = new FormData();
+  formData.append('arquivo', arquivo, arquivo.name);
+
+  return new Promise<RespostaUpload>((resolver, rejeitar) => {
     const xhr = new XMLHttpRequest();
-    xhr.open('PUT', url);
-    xhr.setRequestHeader('Content-Type', arquivo.type || 'application/octet-stream');
+    xhr.open('POST', `${urlApi}/api/v1/documentos/upload`);
+    if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     xhr.upload.onprogress = (evento) => {
       if (aoProgresso && evento.lengthComputable) {
         aoProgresso(Math.round((evento.loaded / evento.total) * 100));
       }
     };
-    xhr.onload = () => (xhr.status >= 200 && xhr.status < 300 ? resolver() : rejeitar(new Error(`HTTP ${xhr.status}`)));
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          resolver(JSON.parse(xhr.responseText) as RespostaUpload);
+        } catch {
+          rejeitar(new Error('Resposta inválida do servidor'));
+        }
+      } else {
+        rejeitar(new Error(`HTTP ${xhr.status}`));
+      }
+    };
     xhr.onerror = () => rejeitar(new Error('falha de rede no upload'));
-    xhr.send(arquivo);
+    xhr.send(formData);
   });
 }
 

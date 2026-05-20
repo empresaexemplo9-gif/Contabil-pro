@@ -27,15 +27,10 @@ export const categoriaDocumentoSchema = z.object({
 export type CategoriaDocumento = z.infer<typeof categoriaDocumentoSchema>;
 
 // --- Upload / criação ---
+// Upload é multipart direto pra `POST /documentos/upload` (Vercel Blob),
+// sem schema de entrada — a metadata vem do próprio arquivo.
 
 const TAMANHO_MAX_BYTES = 500 * 1024 * 1024;
-
-export const presignarUploadSchema = z.object({
-  nome: z.string().min(1).max(255),
-  mimeType: z.string().min(1).max(150),
-  tamanhoBytes: z.coerce.number().int().positive().max(TAMANHO_MAX_BYTES),
-});
-export type PresignarUploadEntrada = z.infer<typeof presignarUploadSchema>;
 
 export const criarDocumentoSchema = z.object({
   empresaId: idSchema.optional(),
