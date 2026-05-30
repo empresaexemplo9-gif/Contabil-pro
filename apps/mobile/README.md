@@ -64,3 +64,28 @@ em português, e **toda string de UI passa pelo i18n** (`src/i18n`).
 - As imagens ilustrativas vêm do Unsplash (exigem rede para carregar).
 - O ícone/splash são gerados sem dependências externas:
   `python3 scripts/gerar_assets.py`.
+
+## Deploy web (Vercel)
+
+O app roda também na web (Expo Router com `output: "static"`). O `vercel.json`
+já está configurado para gerar o site estático em `dist/`.
+
+Para publicar um preview compartilhável:
+
+1. Na Vercel, **New Project** apontando para este repositório.
+2. Em **Root Directory**, selecione `apps/mobile`.
+3. O build usa `npm run build:web` (= `expo export --platform web`) e publica
+   a pasta `dist`. Não precisa de variáveis de ambiente para a versão mockada.
+4. Quando os endpoints reais existirem, defina `EXPO_PUBLIC_API_URL` nas
+   Environment Variables do projeto — os serviços passam de `mock` para `api`
+   automaticamente (ver `src/servicos/config.ts`).
+
+> É um projeto Vercel **separado** do app web contábil (`contabil-pro-*`); não
+> compartilham build nem domínio.
+
+Build local para conferir:
+
+```bash
+npm run build:web   # gera dist/
+npx serve dist      # serve estático em http://localhost:3000
+```
