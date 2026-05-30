@@ -1,3 +1,7 @@
 packages:
   - "apps/*"
   - "packages/*"
+  # O app mobile (Expo/React Native) é um projeto autônomo: tem seu próprio
+  # gerenciamento de dependências e fica fora do lockfile do monorepo para
+  # não quebrar o `pnpm install --frozen-lockfile` da API/web.
+  - "!apps/mobile"
