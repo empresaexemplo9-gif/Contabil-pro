@@ -13,23 +13,25 @@ import { cores, raio, sombra } from '../src/tema';
 import { t } from '../src/i18n';
 import { Botao } from '../src/componentes';
 import { useCarrinho } from '../src/contextos/CarrinhoContext';
-
-type Pagamento = 'cartao' | 'pix' | 'boleto';
+import { criarReserva, processarPagamento, type FormaPagamento } from '../src/servicos';
 
 export default function Checkout() {
   const router = useRouter();
   const { itens, total, limpar } = useCarrinho();
-  const [pagamento, setPagamento] = useState<Pagamento>('pix');
+  const [pagamento, setPagamento] = useState<FormaPagamento>('pix');
   const [concluido, setConcluido] = useState(false);
   const [processando, setProcessando] = useState(false);
 
-  const pagar = () => {
+  const pagar = async () => {
     setProcessando(true);
-    setTimeout(() => {
+    try {
+      const { reservaId } = await criarReserva(itens);
+      await processarPagamento({ reservaId, forma: pagamento });
       limpar();
-      setProcessando(false);
       setConcluido(true);
-    }, 1200);
+    } finally {
+      setProcessando(false);
+    }
   };
 
   if (concluido) {

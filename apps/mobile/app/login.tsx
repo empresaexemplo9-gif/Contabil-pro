@@ -15,6 +15,7 @@ import { cores, raio } from '../src/tema';
 import { t } from '../src/i18n';
 import { Botao, LogoMarca } from '../src/componentes';
 import { useAutenticacao } from '../src/contextos/AutenticacaoContext';
+import { autenticar } from '../src/servicos';
 
 export default function Login() {
   const router = useRouter();
@@ -22,10 +23,17 @@ export default function Login() {
   const { entrar } = useAutenticacao();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [entrando, setEntrando] = useState(false);
 
-  const aoEntrar = () => {
-    entrar(email || 'viajante@viajebrasil.com');
-    router.back();
+  const aoEntrar = async () => {
+    setEntrando(true);
+    try {
+      const sessao = await autenticar(email || 'viajante@viajebrasil.com', senha);
+      entrar(sessao.usuario.email);
+      router.back();
+    } finally {
+      setEntrando(false);
+    }
   };
 
   return (
@@ -75,7 +83,12 @@ export default function Login() {
           <Text style={styles.esqueciTexto}>{t.login.esqueci}</Text>
         </Pressable>
 
-        <Botao titulo={t.login.entrar} aoPressionar={aoEntrar} estilo={{ alignSelf: 'stretch' }} />
+        <Botao
+          titulo={t.login.entrar}
+          aoPressionar={aoEntrar}
+          carregando={entrando}
+          estilo={{ alignSelf: 'stretch' }}
+        />
 
         <View style={styles.divisor}>
           <View style={styles.linhaDiv} />

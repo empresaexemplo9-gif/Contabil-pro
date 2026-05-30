@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { cores, raio } from '../src/tema';
 import { t } from '../src/i18n';
 import { CartaoResultado } from '../src/componentes';
-import { buscarPorCategoria } from '../src/dados';
+import { buscar } from '../src/servicos';
+import { useAsync } from '../src/hooks/useAsync';
 import { categoriasInfo } from '../src/componentes/SeletorCategorias';
 import type { Categoria, ProdutoViagem } from '../src/tipos';
 
@@ -21,10 +22,15 @@ export default function Resultados() {
 
   const [ordem, setOrdem] = useState<Ordenacao>('preco');
 
+  const { dados, carregando } = useAsync(
+    () => buscar(categoria, { origem, destino }),
+    [categoria, origem, destino],
+  );
+
   const resultados = useMemo(() => {
-    const lista = buscarPorCategoria(categoria, { origem, destino }) as ProdutoViagem[];
+    const lista = dados ?? [];
     return [...lista].sort((a, b) => ordenar(a, b, ordem));
-  }, [categoria, origem, destino, ordem]);
+  }, [dados, ordem]);
 
   const titulo = categoriasInfo.find((c) => c.id === categoria)?.rotulo ?? t.resultados.titulo;
   const subtitulo = [origem, destino].filter(Boolean).join(' → ') || 'Todas as opções';
@@ -56,10 +62,16 @@ export default function Resultados() {
           />
         )}
         ListEmptyComponent={
-          <View style={styles.vazio}>
-            <Ionicons name="search-outline" size={48} color={cores.textoClaro} />
-            <Text style={styles.vazioTexto}>{t.resultados.nenhum}</Text>
-          </View>
+          carregando ? (
+            <View style={styles.vazio}>
+              <ActivityIndicator size="large" color={cores.azul} />
+            </View>
+          ) : (
+            <View style={styles.vazio}>
+              <Ionicons name="search-outline" size={48} color={cores.textoClaro} />
+              <Text style={styles.vazioTexto}>{t.resultados.nenhum}</Text>
+            </View>
+          )
         }
       />
     </View>

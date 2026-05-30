@@ -19,12 +19,17 @@ import {
   LogoMarca,
   TituloSecao,
 } from '../../src/componentes';
-import { banners, destinos, pacotes } from '../../src/dados';
+import { listarDestinos, listarOfertas, listarPacotes } from '../../src/servicos';
+import { useAsync } from '../../src/hooks/useAsync';
 import type { Categoria } from '../../src/tipos';
 
 export default function Inicio() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+
+  const { dados: banners = [] } = useAsync(listarOfertas, []);
+  const { dados: destinos = [] } = useAsync(listarDestinos, []);
+  const { dados: pacotes = [] } = useAsync(listarPacotes, []);
 
   const irParaBusca = (categoria: Categoria) =>
     router.push({ pathname: '/buscar', params: { categoria } });

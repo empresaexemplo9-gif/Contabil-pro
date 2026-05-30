@@ -1,11 +1,12 @@
 import React from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { cores, raio, sombra } from '../src/tema';
 import { t } from '../src/i18n';
 import { Botao, Estrelas, Etiqueta, NotaAvaliacao } from '../src/componentes';
-import { buscarProduto } from '../src/dados';
+import { obterProduto } from '../src/servicos';
+import { useAsync } from '../src/hooks/useAsync';
 import { useCarrinho } from '../src/contextos/CarrinhoContext';
 import type { ItemReserva, ProdutoViagem } from '../src/tipos';
 
@@ -14,7 +15,20 @@ export default function Detalhe() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { adicionar, contem } = useCarrinho();
 
-  const produto = id ? buscarProduto(id) : null;
+  const { dados: produto, carregando } = useAsync(
+    () => (id ? obterProduto(id) : Promise.resolve(null)),
+    [id],
+  );
+
+  if (carregando) {
+    return (
+      <View style={[styles.tela, styles.centro]}>
+        <Stack.Screen options={{ title: '' }} />
+        <ActivityIndicator size="large" color={cores.azul} />
+      </View>
+    );
+  }
+
   if (!produto) {
     return (
       <View style={styles.tela}>
@@ -333,6 +347,7 @@ function montarItem(p: ProdutoViagem): ItemReserva {
 
 const styles = StyleSheet.create({
   tela: { flex: 1, backgroundColor: cores.fundo },
+  centro: { alignItems: 'center', justifyContent: 'center' },
   semProduto: { textAlign: 'center', marginTop: 80, color: cores.textoSuave },
   capa: { width: '100%', height: 240 },
   corpo: { padding: 16, gap: 12 },
