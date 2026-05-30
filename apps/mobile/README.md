@@ -67,7 +67,41 @@ em português, e **toda string de UI passa pelo i18n** (`src/i18n`).
 - O ícone/splash são gerados sem dependências externas:
   `python3 scripts/gerar_assets.py`.
 
-## Deploy web (Vercel)
+## Baixar / abrir o app (gerar uma URL)
+
+Há três formas de disponibilizar o app, da mais rápida à mais completa:
+
+### 1. Web (link de navegador — mais rápido)
+
+Faça deploy do build estático na Vercel (ver seção acima). Resultado:
+`https://viajebrasil.vercel.app` — abre em qualquer celular pelo navegador.
+
+### 2. APK Android (instalável — URL de download)
+
+Gera um `.apk` baixável via EAS Build (servidores da Expo). Na sua máquina,
+com uma conta Expo gratuita:
+
+```bash
+npm install
+npx eas-cli login          # uma vez
+npx eas-cli init           # cria o projectId (uma vez)
+npx eas-cli build --platform android --profile preview
+```
+
+Ao terminar, o EAS imprime uma **URL de download do APK**
+(ex.: `https://expo.dev/artifacts/eas/....apk`) — é só abrir no Android e
+instalar. O perfil `preview` já está configurado em `eas.json` para gerar APK.
+
+### 3. Testar na hora com Expo Go
+
+```bash
+npm start          # mostra um QR code
+```
+
+Instale o app **Expo Go** (Play Store / App Store) e escaneie o QR — o app
+abre no seu celular sem instalar nada.
+
+
 
 O app roda também na web (Expo Router com `output: "static"`). O `vercel.json`
 já está configurado para gerar o site estático em `dist/`.
