@@ -2,7 +2,7 @@ import { prisma } from '@contabilpro/database';
 import { logger } from '@contabilpro/logger';
 import { z } from 'zod';
 
-import { publicarJob } from '../comum/fila/fila';
+import { publicarJob } from '../comum/fila/publicar';
 
 import { aplicarTemplate, aplicarTemplateObjeto } from './_lib/templates';
 
