@@ -9,14 +9,16 @@ Construído com **Expo + React Native + Expo Router + TypeScript**. A interface
 da tela inicial (carrossel de ofertas, seletor de categorias e busca) tem como
 referência o app da Decolar.
 
-> Projeto **autônomo**: fica fora do workspace pnpm do monorepo (ver
-> `pnpm-workspace.yaml`) e tem seu próprio gerenciamento de dependências, para
-> não interferir no `pnpm install --frozen-lockfile` da API/web.
+> Projeto **autônomo**: tem seu próprio gerenciamento de dependências (npm) e
+> roda isolado. Mora no repositório `viajebrasil` e é espelhado em
+> `apps/mobile` do monorepo `contabil-pro` (onde fica fora do workspace pnpm,
+> para não interferir no `pnpm install --frozen-lockfile` da API/web).
 
 ## Como rodar
 
+A partir da raiz do projeto:
+
 ```bash
-cd apps/mobile
 npm install
 npm start          # abre o Expo Dev Tools (QR code)
 npm run android    # emulador/dispositivo Android
