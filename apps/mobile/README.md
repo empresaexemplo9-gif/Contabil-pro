@@ -64,9 +64,13 @@ em português, e **toda string de UI passa pelo i18n** (`src/i18n`).
 - Os dados são **mockados** (`src/dados`). A integração real seria feita com a
   API de parceiros (ex.: PassHub) e gateways de pagamento.
 - As imagens ilustrativas vêm do Unsplash (exigem rede para carregar).
-- A logo oficial (`assets/logo.png`) é usada como ícone, splash e no app. O
-  script `scripts/processar_logo.py` recorta a logo num círculo com cantos
-  transparentes (sem dependências externas).
+- A logo oficial (`assets/logo.png`) é a base da identidade. Dois scripts sem
+  dependências externas processam a imagem:
+  - `scripts/processar_logo.py` — recorta a logo num círculo com cantos
+    transparentes (usada na splash e dentro do app).
+  - `scripts/gerar_icones.py` — gera `icon.png` (1024, fundo branco opaco — iOS
+    não aceita transparência), `adaptive-icon.png` (1024, transparente, com zona
+    segura do Android) e `favicon.png` (web).
 
 ## Baixar / abrir o app (gerar uma URL)
 
