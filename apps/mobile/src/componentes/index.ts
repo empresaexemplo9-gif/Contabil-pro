@@ -11,3 +11,4 @@ export {
 export { CartaoDestino, CartaoPacote } from './Cartoes';
 export { CartaoResultado } from './CartaoResultado';
 export { TituloSecao } from './Secao';
+export { PromptInstalacao } from './PromptInstalacao';

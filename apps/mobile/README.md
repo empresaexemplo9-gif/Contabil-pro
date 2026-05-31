@@ -64,18 +64,28 @@ em português, e **toda string de UI passa pelo i18n** (`src/i18n`).
 - Os dados são **mockados** (`src/dados`). A integração real seria feita com a
   API de parceiros (ex.: PassHub) e gateways de pagamento.
 - As imagens ilustrativas vêm do Unsplash (exigem rede para carregar).
-- A logo oficial (`assets/logo.png`) é usada como ícone, splash e no app. O
-  script `scripts/processar_logo.py` recorta a logo num círculo com cantos
-  transparentes (sem dependências externas).
+- A logo oficial (`assets/logo.png`) é a base da identidade. Dois scripts sem
+  dependências externas processam a imagem:
+  - `scripts/processar_logo.py` — recorta a logo num círculo com cantos
+    transparentes (usada na splash e dentro do app).
+  - `scripts/gerar_icones.py` — gera `icon.png` (1024, fundo branco opaco — iOS
+    não aceita transparência), `adaptive-icon.png` (1024, transparente, com zona
+    segura do Android) e `favicon.png` (web).
 
 ## Baixar / abrir o app (gerar uma URL)
 
 Há três formas de disponibilizar o app, da mais rápida à mais completa:
 
-### 1. Web (link de navegador — mais rápido)
+### 1. PWA — instalável pelo navegador (mais rápido, sem loja)
 
-Faça deploy do build estático na Vercel (ver seção acima). Resultado:
-`https://viajebrasil.vercel.app` — abre em qualquer celular pelo navegador.
+Faça deploy do build estático na Vercel (ver seção acima). O app é um **PWA**
+(`public/manifest.json` + metatags em `app/+html.tsx`): ao abrir o link no
+celular, o navegador oferece **"Instalar app" / "Adicionar à tela inicial"**.
+Instalado, ganha ícone próprio e abre **em tela cheia**, sem a barra do
+navegador — experiência de app nativo, sem APK nem loja.
+
+- **Android/Chrome:** menu ⋮ → "Instalar app" / "Adicionar à tela inicial".
+- **iOS/Safari:** botão Compartilhar → "Adicionar à Tela de Início".
 
 ### 2. APK Android (instalável — URL de download)
 

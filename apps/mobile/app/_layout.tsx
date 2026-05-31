@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { CarrinhoProvider } from '../src/contextos/CarrinhoContext';
 import { AutenticacaoProvider } from '../src/contextos/AutenticacaoContext';
+import { PromptInstalacao } from '../src/componentes';
 import { cores } from '../src/tema';
 import { t } from '../src/i18n';
 
@@ -37,6 +38,7 @@ export default function LayoutRaiz() {
                 options={{ headerShown: false, presentation: 'modal' }}
               />
             </Stack>
+            <PromptInstalacao />
           </CarrinhoProvider>
         </AutenticacaoProvider>
       </SafeAreaProvider>
