@@ -76,10 +76,16 @@ em português, e **toda string de UI passa pelo i18n** (`src/i18n`).
 
 Há três formas de disponibilizar o app, da mais rápida à mais completa:
 
-### 1. Web (link de navegador — mais rápido)
+### 1. PWA — instalável pelo navegador (mais rápido, sem loja)
 
-Faça deploy do build estático na Vercel (ver seção acima). Resultado:
-`https://viajebrasil.vercel.app` — abre em qualquer celular pelo navegador.
+Faça deploy do build estático na Vercel (ver seção acima). O app é um **PWA**
+(`public/manifest.json` + metatags em `app/+html.tsx`): ao abrir o link no
+celular, o navegador oferece **"Instalar app" / "Adicionar à tela inicial"**.
+Instalado, ganha ícone próprio e abre **em tela cheia**, sem a barra do
+navegador — experiência de app nativo, sem APK nem loja.
+
+- **Android/Chrome:** menu ⋮ → "Instalar app" / "Adicionar à tela inicial".
+- **iOS/Safari:** botão Compartilhar → "Adicionar à Tela de Início".
 
 ### 2. APK Android (instalável — URL de download)
 

@@ -178,3 +178,13 @@ if __name__ == "__main__":
     fav = canvas(48, 48, BRANCO)
     colar(fav, 48, redim3, fw, fh, (48 - fw) // 2, (48 - fh) // 2)
     escrever_png_rgba(os.path.join(base_dir, "favicon.png"), 48, 48, fav)
+
+    # 4) ícones do PWA (web instalável) em ../public/icons
+    pub = os.path.join(base_dir, "..", "public", "icons")
+    os.makedirs(pub, exist_ok=True)
+    for tam in (192, 512):
+        pw, ph = aspecto(sw, sh, tam)
+        r = redimensionar(logo, sw, sh, pw, ph)
+        cv = canvas(tam, tam, BRANCO)
+        colar(cv, tam, r, pw, ph, (tam - pw) // 2, (tam - ph) // 2)
+        escrever_png_rgba(os.path.join(pub, f"icon-{tam}.png"), tam, tam, cv)
