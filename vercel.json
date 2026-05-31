@@ -1,9 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": null,
-  "installCommand": "cd apps/mobile && npm install",
-  "buildCommand": "cd apps/mobile && EXPO_NO_TELEMETRY=1 CI=1 npm run build:web",
-  "outputDirectory": "apps/mobile/dist",
-  "cleanUrls": true,
-  "trailingSlash": false
-}

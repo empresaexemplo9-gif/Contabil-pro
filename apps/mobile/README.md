@@ -51,7 +51,7 @@ src/
   i18n/              Strings de UI em PT-BR (sem texto hardcoded nas telas)
   tema/              Cores da marca, tipografia, espaçamento
   tipos/             Tipos TypeScript dos produtos
-assets/              Ícone e splash (gerados por scripts/gerar_assets.py)
+assets/              logo.png oficial (usada como ícone, splash e no app)
 ```
 
 ## Convenções
@@ -64,8 +64,9 @@ em português, e **toda string de UI passa pelo i18n** (`src/i18n`).
 - Os dados são **mockados** (`src/dados`). A integração real seria feita com a
   API de parceiros (ex.: PassHub) e gateways de pagamento.
 - As imagens ilustrativas vêm do Unsplash (exigem rede para carregar).
-- O ícone/splash são gerados sem dependências externas:
-  `python3 scripts/gerar_assets.py`.
+- A logo oficial (`assets/logo.png`) é usada como ícone, splash e no app. O
+  script `scripts/processar_logo.py` recorta a logo num círculo com cantos
+  transparentes (sem dependências externas).
 
 ## Baixar / abrir o app (gerar uma URL)
 

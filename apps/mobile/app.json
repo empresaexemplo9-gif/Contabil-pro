@@ -7,9 +7,9 @@
     "scheme": "viajebrasil",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "icon": "./assets/icone.png",
+    "icon": "./assets/logo.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#FFFFFF"
     },
@@ -20,7 +20,7 @@
     "android": {
       "package": "br.com.viajebrasil.app",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icone.png",
+        "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#FFFFFF"
       }
     },
