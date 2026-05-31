@@ -28,6 +28,17 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="apple-mobile-web-app-title" content="ViajeBrasil" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
 
+        {/* Registra o service worker (necessário para a instalação do PWA) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/sw.js').catch(function () {});
+  });
+}`,
+          }}
+        />
+
         <ScrollViewStyleReset />
       </head>
       <body>{children}</body>
