@@ -91,13 +91,19 @@ mudar:
 
 ### Configurar uma vez
 
-No repositório GitHub: **Settings → Secrets and variables → Actions →
-New repository secret**. Adicione:
+Os nomes seguem o padrão injetado pela integração **Vercel ↔ Neon**
+(aba *Storage* do projeto no Vercel). Copie os valores de lá uma única
+vez para **Settings → Secrets and variables → Actions → New repository
+secret**:
 
-| Secret | Valor |
+| Secret | Valor (na UI do Vercel Storage) |
 |---|---|
-| `DATABASE_URL` | Pooled connection do Neon (com `-pooler`) |
-| `DIRECT_URL` | Direct connection do Neon (sem `-pooler`) |
+| `POSTGRES_PRISMA_URL` | Pooled c/ flags do Prisma (`pgbouncer=true&connection_limit=1`) |
+| `POSTGRES_URL_NON_POOLING` | Direct connection (sem `-pooler`) — usado por `migrate deploy` e RLS |
+
+> Sem integração Vercel? Pegue direto no Neon: pooled = `DATABASE_URL`,
+> direct = `DIRECT_URL`. Mas **crie os secrets com os nomes acima** —
+> o workflow já mapeia internamente para as variáveis que o Prisma espera.
 
 Opcionalmente, crie um **Environment** chamado `production` (Settings →
 Environments) e mova os secrets para lá — permite exigir aprovação

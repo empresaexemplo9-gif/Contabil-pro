@@ -1,16 +1,13 @@
-import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 
+import { FilaServico } from '../../comum/fila/fila.module';
 import { PrismaService } from '../../comum/prisma/prisma.service';
-
-import type { Queue } from 'bullmq';
-
 
 @Injectable()
 export class NotificacoesServico {
   constructor(
     private readonly prisma: PrismaService,
-    @InjectQueue('notificacoes') private readonly fila: Queue,
+    private readonly fila: FilaServico,
   ) {}
 
   listarParaUsuario(usuarioId: string) {
@@ -37,11 +34,6 @@ export class NotificacoesServico {
     corpo: string;
     dados?: Record<string, unknown>;
   }): Promise<void> {
-    await this.fila.add('enviar', payload, {
-      removeOnComplete: 1000,
-      removeOnFail: 5000,
-      attempts: 3,
-      backoff: { type: 'exponential', delay: 5000 },
-    });
+    await this.fila.publicar('enviar-notificacao', payload);
   }
 }

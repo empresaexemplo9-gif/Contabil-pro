@@ -8,7 +8,6 @@ import {
   validarCodigoMfa,
   verificarSenha,
 } from '@contabilpro/auth-core';
-import { InjectQueue } from '@nestjs/bullmq';
 import {
   BadRequestException,
   Injectable,
@@ -16,8 +15,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
-
-
+import { FilaServico } from '../../comum/fila/fila.module';
 import { PrismaService } from '../../comum/prisma/prisma.service';
 import { configurarEnv } from '../../config/env';
 
@@ -31,7 +29,6 @@ import type {
   RedefinirSenhaEntrada,
   RefreshEntrada,
 } from '@contabilpro/contracts';
-import type { Queue } from 'bullmq';
 
 const TTL_ACESSO_SEGUNDOS = 60 * 15;
 const TTL_REFRESH_MS = 30 * 24 * 60 * 60 * 1000;
@@ -47,7 +44,7 @@ export class AuthServico {
 
   constructor(
     private readonly prisma: PrismaService,
-    @InjectQueue('email') private readonly filaEmail: Queue,
+    private readonly fila: FilaServico,
   ) {}
 
   async login(
@@ -260,16 +257,12 @@ export class AuthServico {
 
     const env = configurarEnv();
     const link = `${env.WEB_URL}/redefinir-senha?token=${token}`;
-    await this.filaEmail.add(
-      'enviar',
-      {
-        para: usuario.email,
-        assunto: 'Redefinição de senha — ContábilPro',
-        corpoHtml: `<p>Olá ${usuario.nome},</p><p>Para redefinir sua senha, acesse <a href="${link}">${link}</a>. O link expira em 1 hora.</p>`,
-        corpoTexto: `Olá ${usuario.nome}, para redefinir sua senha acesse ${link} (expira em 1 hora).`,
-      },
-      { attempts: 3, backoff: { type: 'exponential', delay: 5000 } },
-    );
+    await this.fila.publicar('enviar-email', {
+      para: usuario.email,
+      assunto: 'Redefinição de senha — ContábilPro',
+      corpoHtml: `<p>Olá ${usuario.nome},</p><p>Para redefinir sua senha, acesse <a href="${link}">${link}</a>. O link expira em 1 hora.</p>`,
+      corpoTexto: `Olá ${usuario.nome}, para redefinir sua senha acesse ${link} (expira em 1 hora).`,
+    });
   }
 
   async redefinirSenha(dados: RedefinirSenhaEntrada): Promise<void> {

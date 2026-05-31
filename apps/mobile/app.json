@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "ViajeBrasil",
+    "slug": "viajebrasil",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "viajebrasil",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "icon": "./assets/icone.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "br.com.viajebrasil.app"
+    },
+    "android": {
+      "package": "br.com.viajebrasil.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icone.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": ["expo-router"]
+  }
+}

@@ -1,4 +1,3 @@
-import { BullModule } from '@nestjs/bullmq';
 import { forwardRef, Module } from '@nestjs/common';
 
 import { AtendimentoModule } from '../atendimento/atendimento.modulo';
@@ -10,10 +9,7 @@ import { WhatsappServico } from './whatsapp/whatsapp.servico';
 import { ZapsignServico } from './zapsign/zapsign.servico';
 
 @Module({
-  imports: [
-    BullModule.registerQueue({ name: 'whatsapp' }),
-    forwardRef(() => AtendimentoModule),
-  ],
+  imports: [forwardRef(() => AtendimentoModule)],
   controllers: [IntegracoesControlador, WebhooksControlador],
   providers: [IntegracoesServico, WhatsappServico, ZapsignServico],
   exports: [IntegracoesServico, WhatsappServico, ZapsignServico],
