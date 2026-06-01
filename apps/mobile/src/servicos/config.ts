@@ -1,28 +1,47 @@
 import Constants from 'expo-constants';
 
 /**
- * Ponto único de configuração da integração com o backend.
+ * Configuração da integração com o backend.
  *
- * Enquanto os endpoints reais não existem, o app opera com dados mockados
- * (`fonte === 'mock'`). Para ligar a API de verdade, basta definir a variável
- * de ambiente `EXPO_PUBLIC_API_URL` (ou `extra.apiUrl` no app.json) — a
- * `fonte` passa automaticamente para `'api'` e os serviços em
- * `src/servicos/viagens.ts` começam a chamar o cliente HTTP.
+ * Ordem de prioridade da fonte de dados:
+ * 1. **supabase** — se EXPO_PUBLIC_SUPABASE_URL e ANON_KEY estiverem definidos.
+ * 2. **api** — se EXPO_PUBLIC_API_URL estiver definido (REST genérica).
+ * 3. **mock** — dados locais (sem backend).
  *
- * NENHUMA tela conhece a origem dos dados: tudo passa por `src/servicos`.
+ * Nenhuma tela conhece a origem dos dados: tudo passa por `src/servicos`.
  */
-const baseUrlEnv =
-  process.env.EXPO_PUBLIC_API_URL ??
-  (Constants.expoConfig?.extra?.apiUrl as string | undefined) ??
-  '';
+const extra = (Constants.expoConfig?.extra ?? {}) as Record<string, string | undefined>;
 
-export type FonteDados = 'mock' | 'api';
+const baseUrlEnv = process.env.EXPO_PUBLIC_API_URL ?? extra.apiUrl ?? '';
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? extra.supabaseUrl ?? '';
+const supabaseAnonKey =
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? extra.supabaseAnonKey ?? '';
+
+/**
+ * Site oficial da Viaje Brasil, onde a compra de passagens é concluída.
+ *
+ * O contrato com a Buson autoriza a venda apenas pelos canais oficiais
+ * (links/PDV/QR Codes) e veda embutir o sistema deles em apps de terceiros.
+ * Por isso o app NÃO processa o pagamento: ele encaminha o cliente final ao
+ * checkout oficial. Configurável por `EXPO_PUBLIC_SITE_URL`.
+ */
+const siteUrlEnv =
+  process.env.EXPO_PUBLIC_SITE_URL ?? extra.siteUrl ?? 'https://www.viajebrasilpassagens.com.br';
+
+export const SITE_OFICIAL = {
+  url: siteUrlEnv.replace(/\/$/, ''),
+} as const;
+
+export const SUPABASE = {
+  url: supabaseUrl,
+  anonKey: supabaseAnonKey,
+  ativo: Boolean(supabaseUrl && supabaseAnonKey),
+} as const;
+
+export type FonteDados = 'mock' | 'supabase' | 'api';
 
 export const API_CONFIG = {
-  /** URL base da API (ex.: https://api.viajebrasilpassagens.com.br). */
   baseUrl: baseUrlEnv.replace(/\/$/, ''),
-  /** 'mock' enquanto não há backend; 'api' quando `baseUrl` está definida. */
-  fonte: (baseUrlEnv ? 'api' : 'mock') as FonteDados,
-  /** Tempo máximo de espera por resposta (ms). */
+  fonte: (SUPABASE.ativo ? 'supabase' : baseUrlEnv ? 'api' : 'mock') as FonteDados,
   timeoutMs: 15000,
 } as const;

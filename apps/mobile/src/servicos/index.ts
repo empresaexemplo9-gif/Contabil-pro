@@ -1,6 +1,9 @@
-export { API_CONFIG } from './config';
+export { API_CONFIG, SITE_OFICIAL } from './config';
 export type { FonteDados } from './config';
+export { linkCheckoutOficial, abrirCheckoutOficial } from './site';
 export { ErroApi, requisitar } from './cliente';
+export { ENDPOINTS } from './endpoints';
+export { tokenAtual, definirToken, carregarTokenPersistido } from './sessao';
 export {
   listarOfertas,
   listarDestinos,
