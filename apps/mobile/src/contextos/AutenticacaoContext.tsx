@@ -10,6 +10,7 @@ import React, {
 import type { Papel } from '../admin/credenciais';
 import { SUPABASE } from '../servicos/config';
 import { supabase } from '../servicos/supabase';
+import { carregarTokenPersistido, definirToken } from '../servicos/sessao';
 
 export type { Papel };
 
@@ -31,6 +32,11 @@ const AutenticacaoContext = createContext<AutenticacaoContextValor | null>(null)
 
 export function AutenticacaoProvider({ children }: { children: React.ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
+
+  // Reidrata o token (JWT) salvo, para o modo `api` já iniciar autenticado.
+  useEffect(() => {
+    void carregarTokenPersistido();
+  }, []);
 
   // Restaura a sessão do Supabase (quando configurado) e mantém sincronizado.
   useEffect(() => {
@@ -72,6 +78,7 @@ export function AutenticacaoProvider({ children }: { children: React.ReactNode }
 
   const sair = useCallback(() => {
     if (SUPABASE.ativo && supabase) void supabase.auth.signOut();
+    void definirToken(null);
     setUsuario(null);
   }, []);
 

@@ -1,17 +1,17 @@
 /**
  * Serviços transacionais (reserva, pagamento e autenticação) — a brecha para
- * a integração futura. Hoje simulam sucesso localmente; ao ligar a API, troque
- * o corpo de cada função pela chamada `requisitar(...)` correspondente.
+ * a integração futura. No modo `mock` simulam sucesso localmente; no modo `api`
+ * chamam o backend pelos caminhos de `ENDPOINTS`. O login guarda o token (JWT)
+ * em `sessao`, que o cliente HTTP anexa nas requisições seguintes.
  *
- * Contrato de endpoints previsto:
- *   POST /reservas      { itens } -> { reservaId }
- *   POST /pagamentos    { reservaId, forma, dadosViajante } -> { status, comprovante }
- *   POST /auth/login    { email, senha } -> { token, usuario }
+ * Quando a API for liberada, ajuste os caminhos em `endpoints.ts`.
  */
 import type { ItemReserva } from '../tipos';
 import { validarAdmin, type Papel } from '../admin/credenciais';
 import { API_CONFIG } from './config';
 import { requisitar } from './cliente';
+import { ENDPOINTS } from './endpoints';
+import { definirToken } from './sessao';
 import { clienteSupabase } from './supabase';
 
 export type FormaPagamento = 'pix' | 'cartao' | 'boleto';
@@ -31,7 +31,7 @@ export interface Comprovante {
 /** Cria a reserva a partir dos itens do carrinho. */
 export async function criarReserva(itens: ItemReserva[]): Promise<{ reservaId: string }> {
   if (API_CONFIG.fonte === 'api') {
-    return requisitar<{ reservaId: string }>('/reservas', {
+    return requisitar<{ reservaId: string }>(ENDPOINTS.pedidos.reservas, {
       method: 'POST',
       body: JSON.stringify({ itens }),
     });
@@ -47,7 +47,7 @@ export async function processarPagamento(args: {
   viajante?: Partial<DadosViajante>;
 }): Promise<Comprovante> {
   if (API_CONFIG.fonte === 'api') {
-    return requisitar<Comprovante>('/pagamentos', {
+    return requisitar<Comprovante>(ENDPOINTS.pedidos.pagamentos, {
       method: 'POST',
       body: JSON.stringify(args),
     });
@@ -75,13 +75,17 @@ export async function autenticar(email: string, senha: string): Promise<SessaoUs
       .single();
     const papel: Papel = perfil?.papel === 'admin' ? 'admin' : 'cliente';
     const nome = (perfil?.nome as string | undefined) ?? email.split('@')[0] ?? 'Viajante';
-    return { token: data.session?.access_token ?? '', usuario: { nome, email, papel } };
+    const token = data.session?.access_token ?? '';
+    await definirToken(token || null);
+    return { token, usuario: { nome, email, papel } };
   }
   if (API_CONFIG.fonte === 'api') {
-    return requisitar<SessaoUsuario>('/auth/login', {
+    const sessao = await requisitar<SessaoUsuario>(ENDPOINTS.auth.login, {
       method: 'POST',
       body: JSON.stringify({ email, senha }),
     });
+    await definirToken(sessao.token || null);
+    return sessao;
   }
   // Mock: define o papel pela credencial de administrador.
   const nome = email.split('@')[0] ?? 'Viajante';

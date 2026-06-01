@@ -1,4 +1,5 @@
 import { API_CONFIG } from './config';
+import { tokenAtual } from './sessao';
 
 /** Erro de resposta da API, com o status HTTP para tratamento nas telas. */
 export class ErroApi extends Error {
@@ -25,14 +26,16 @@ export async function requisitar<T>(
   const controle = new AbortController();
   const limite = setTimeout(() => controle.abort(), API_CONFIG.timeoutMs);
 
+  const token = tokenAtual();
+
   try {
     const resposta = await fetch(`${API_CONFIG.baseUrl}${caminho}`, {
       ...init,
       signal: controle.signal,
       headers: {
         'Content-Type': 'application/json',
-        // TODO(api): incluir `Authorization: Bearer <token>` quando o
-        // fluxo de autenticação real estiver disponível.
+        // Anexa o JWT do login quando houver sessão ativa (modo `api`).
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...init.headers,
       },
     });
