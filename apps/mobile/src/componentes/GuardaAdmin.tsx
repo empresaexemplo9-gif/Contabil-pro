@@ -21,8 +21,8 @@ export function GuardaAdmin({ children }: { children: React.ReactNode }) {
       <Text style={styles.texto}>{t.admin.restritoTexto}</Text>
       <Text style={styles.dica}>{t.admin.dica}</Text>
       <Botao
-        titulo={t.perfil.entrar}
-        aoPressionar={() => router.push('/login')}
+        titulo={t.admin.entrarAdmin}
+        aoPressionar={() => router.replace('/admin/login')}
         estilo={{ alignSelf: 'stretch', marginTop: 16 }}
       />
     </View>

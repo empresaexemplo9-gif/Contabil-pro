@@ -14,6 +14,7 @@ export default function LayoutAdmin() {
         contentStyle: { backgroundColor: cores.fundo },
       }}
     >
+      <Stack.Screen name="login" options={{ title: t.admin.loginTitulo }} />
       <Stack.Screen name="index" options={{ title: t.admin.painel }} />
       <Stack.Screen name="precos" options={{ title: t.admin.secaoPrecos }} />
       <Stack.Screen name="parceiros" options={{ title: t.admin.secaoParceiros }} />

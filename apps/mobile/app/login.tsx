@@ -29,7 +29,7 @@ export default function Login() {
     setEntrando(true);
     try {
       const sessao = await autenticar(email || 'viajante@viajebrasil.com', senha);
-      entrar(sessao.usuario.email);
+      entrar(sessao.usuario.email, sessao.usuario.papel);
       router.back();
     } finally {
       setEntrando(false);
