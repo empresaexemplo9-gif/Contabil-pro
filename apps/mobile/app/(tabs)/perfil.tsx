@@ -14,7 +14,7 @@ type Icone = keyof typeof Ionicons.glyphMap;
 export default function Perfil() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { usuario, autenticado, sair } = useAutenticacao();
+  const { usuario, autenticado, ehAdmin, sair } = useAutenticacao();
 
   return (
     <ScrollView style={styles.tela} contentContainerStyle={{ paddingBottom: 40 }}>
@@ -40,6 +40,16 @@ export default function Perfil() {
           </>
         )}
       </View>
+
+      {ehAdmin && (
+        <Grupo>
+          <Linha
+            icone="construct-outline"
+            rotulo={t.admin.painel}
+            aoTocar={() => router.push('/admin')}
+          />
+        </Grupo>
+      )}
 
       <Grupo>
         <Linha icone="airplane-outline" rotulo={t.perfil.minhasViagens} aoTocar={() => router.push('/reservas')} />

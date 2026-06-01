@@ -26,6 +26,8 @@ import type {
   PacoteTurismo,
   ProdutoViagem,
 } from '../tipos';
+import { aplicarPrecos } from '../admin/produtos';
+import { carregarOverridesPreco } from '../admin/repositorio';
 import { API_CONFIG } from './config';
 import { requisitar } from './cliente';
 
@@ -59,10 +61,14 @@ export async function buscar(
     if (filtro.destino) query.set('destino', filtro.destino);
     return requisitar<ProdutoViagem[]>(`/busca?${query.toString()}`);
   }
-  return buscarPorCategoria(categoria, filtro);
+  const overrides = await carregarOverridesPreco();
+  return aplicarPrecos(buscarPorCategoria(categoria, filtro), overrides);
 }
 
 export async function obterProduto(id: string): Promise<ProdutoViagem | null> {
   if (API_CONFIG.fonte === 'api') return requisitar<ProdutoViagem>(`/produtos/${id}`);
-  return buscarProduto(id);
+  const produto = buscarProduto(id);
+  if (!produto) return null;
+  const overrides = await carregarOverridesPreco();
+  return aplicarPrecos([produto], overrides)[0] ?? produto;
 }
