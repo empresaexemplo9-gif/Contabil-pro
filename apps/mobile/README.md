@@ -61,8 +61,11 @@ em português, e **toda string de UI passa pelo i18n** (`src/i18n`).
 
 ## Observações
 
-- Os dados são **mockados** (`src/dados`). A integração real seria feita com a
-  API de parceiros (ex.: PassHub) e gateways de pagamento.
+- Os dados do catálogo são **mockados** (`src/dados`). **Backend opcional via
+  Supabase** (login real de admin + preços e parceiros compartilhados): veja
+  `supabase/README.md`. Sem as variáveis `EXPO_PUBLIC_SUPABASE_*`, o app roda
+  em modo mock. A integração de catálogo completo e pagamento (ex.: PassHub e
+  gateway) são os próximos passos.
 - As imagens ilustrativas vêm do Unsplash (exigem rede para carregar).
 - A logo oficial (`assets/logo.png`) é a base da identidade. Dois scripts sem
   dependências externas processam a imagem:

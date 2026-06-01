@@ -12,6 +12,7 @@ import type { ItemReserva } from '../tipos';
 import { validarAdmin, type Papel } from '../admin/credenciais';
 import { API_CONFIG } from './config';
 import { requisitar } from './cliente';
+import { clienteSupabase } from './supabase';
 
 export type FormaPagamento = 'pix' | 'cartao' | 'boleto';
 
@@ -63,6 +64,19 @@ export interface SessaoUsuario {
 
 /** Autentica por e-mail/senha. */
 export async function autenticar(email: string, senha: string): Promise<SessaoUsuario> {
+  if (API_CONFIG.fonte === 'supabase') {
+    const sb = clienteSupabase();
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+    if (error || !data.user) throw new Error('Credenciais inválidas');
+    const { data: perfil } = await sb
+      .from('perfis')
+      .select('papel, nome')
+      .eq('id', data.user.id)
+      .single();
+    const papel: Papel = perfil?.papel === 'admin' ? 'admin' : 'cliente';
+    const nome = (perfil?.nome as string | undefined) ?? email.split('@')[0] ?? 'Viajante';
+    return { token: data.session?.access_token ?? '', usuario: { nome, email, papel } };
+  }
   if (API_CONFIG.fonte === 'api') {
     return requisitar<SessaoUsuario>('/auth/login', {
       method: 'POST',
