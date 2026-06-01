@@ -65,6 +65,13 @@ export default function Perfil() {
           rotulo={t.perfil.ajuda}
           aoTocar={() => Linking.openURL(empresa.whatsappUrl)}
         />
+        {!ehAdmin && (
+          <Linha
+            icone="shield-checkmark-outline"
+            rotulo={t.admin.acesso}
+            aoTocar={() => router.push('/admin/login')}
+          />
+        )}
       </Grupo>
 
       {autenticado && (

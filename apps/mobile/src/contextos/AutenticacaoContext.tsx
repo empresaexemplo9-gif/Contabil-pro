@@ -1,6 +1,8 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
-export type Papel = 'admin' | 'cliente';
+import type { Papel } from '../admin/credenciais';
+
+export type { Papel };
 
 interface Usuario {
   nome: string;
@@ -18,17 +20,12 @@ interface AutenticacaoContextValor {
 
 const AutenticacaoContext = createContext<AutenticacaoContextValor | null>(null);
 
-/** No protótipo, contas cujo e-mail começa com "admin" entram como administrador. */
-function papelPorEmail(email: string): Papel {
-  return email.trim().toLowerCase().startsWith('admin') ? 'admin' : 'cliente';
-}
-
 export function AutenticacaoProvider({ children }: { children: React.ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
 
-  const entrar = useCallback((email: string, papel?: Papel) => {
+  const entrar = useCallback((email: string, papel: Papel = 'cliente') => {
     const nome = email.split('@')[0] ?? 'Viajante';
-    setUsuario({ nome, email, papel: papel ?? papelPorEmail(email) });
+    setUsuario({ nome, email, papel });
   }, []);
 
   const sair = useCallback(() => setUsuario(null), []);

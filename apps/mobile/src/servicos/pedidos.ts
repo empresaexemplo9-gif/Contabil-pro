@@ -9,6 +9,7 @@
  *   POST /auth/login    { email, senha } -> { token, usuario }
  */
 import type { ItemReserva } from '../tipos';
+import { validarAdmin, type Papel } from '../admin/credenciais';
 import { API_CONFIG } from './config';
 import { requisitar } from './cliente';
 
@@ -57,7 +58,7 @@ export async function processarPagamento(args: {
 
 export interface SessaoUsuario {
   token: string;
-  usuario: { nome: string; email: string };
+  usuario: { nome: string; email: string; papel: Papel };
 }
 
 /** Autentica por e-mail/senha. */
@@ -68,7 +69,8 @@ export async function autenticar(email: string, senha: string): Promise<SessaoUs
       body: JSON.stringify({ email, senha }),
     });
   }
-  // Mock: aceita qualquer credencial.
+  // Mock: define o papel pela credencial de administrador.
   const nome = email.split('@')[0] ?? 'Viajante';
-  return { token: 'mock-token', usuario: { nome, email } };
+  const papel: Papel = validarAdmin(email, senha) ? 'admin' : 'cliente';
+  return { token: 'mock-token', usuario: { nome, email, papel } };
 }

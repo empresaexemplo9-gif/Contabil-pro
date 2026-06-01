@@ -177,7 +177,11 @@ export const ptBR = {
     buscarProduto: 'Buscar produto...',
     nenhumParceiro: 'Nenhum parceiro cadastrado.',
     sairAdmin: 'Sair do painel',
-    dica: 'Dica: entre com admin@viajebrasil.com (qualquer senha) para acesso de administrador.',
+    loginTitulo: 'Acesso administrativo',
+    loginSub: 'Entre com suas credenciais de administrador',
+    entrarAdmin: 'Entrar como administrador',
+    credenciaisInvalidas: 'Credenciais inválidas ou sem permissão de administrador.',
+    dica: 'Demo: admin@viajebrasil.com  /  viajebrasil@2026',
   },
   comum: {
     reais: (v: number) =>
