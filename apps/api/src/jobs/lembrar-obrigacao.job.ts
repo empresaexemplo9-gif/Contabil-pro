@@ -1,7 +1,7 @@
 import { prisma } from '@contabilpro/database';
 import { logger } from '@contabilpro/logger';
 
-import { publicarJob } from '../comum/fila/fila';
+import { publicarJob } from '../comum/fila/publicar';
 
 /**
  * Cron diário: para cada tarefa pendente que vence em até 3 dias e tem
