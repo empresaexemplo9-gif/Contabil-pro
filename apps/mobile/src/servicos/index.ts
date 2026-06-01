@@ -20,3 +20,10 @@ export type {
   Comprovante,
   SessaoUsuario,
 } from './pedidos';
+export {
+  listarParceiros,
+  salvarParceiro,
+  removerParceiro,
+  overridesPreco,
+  definirPrecoProduto,
+} from './admin';
