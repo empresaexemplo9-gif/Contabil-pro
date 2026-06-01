@@ -7,6 +7,13 @@ export {
 } from './whatsapp.js';
 
 export {
+  enviarEmail as enviarEmailResend,
+  type CredenciaisResend,
+  type EnviarEmailEntrada as EnviarEmailResendEntrada,
+  type EmailEnviado as EmailEnviadoResend,
+} from './resend.js';
+
+export {
   criarDocumento as criarDocumentoZapsign,
   parsearWebhook as parsearWebhookZapsign,
   type CredenciaisZapsign,
